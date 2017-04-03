@@ -21,31 +21,6 @@ typedef LCC::FT FT;
 LCC lcc;
 map<string, vector<Dart_handle>> index_1_cell;
 
-Dart_handle add_vertex(TVec3d v)
-{
-	Dart_handle result;
-	bool found = false;
-
-	for( LCC::Dart_range::iterator it = lcc.darts().begin(); it != lcc.darts().end(); ++it )
-	{
-		if( lcc.point(it) == Point(v.x, v.y, v.z) )
-		{
-			cout << "Found " << lcc.point(it) << endl;
-			found = true;
-			result = it;
-			break;
-		}
-	}
-
-	if( !found )
-	{
-		result = lcc.create_dart(Point(v.x, v.y, v.z));
-		cout << "Created " << lcc.point(result) << endl;
-	}
-
-	return result;
-}
-
 Point tvec_to_point(TVec3d v)
 {
 	return Point(v.x, v.y, v.z);
@@ -61,9 +36,55 @@ string get_point_name(Point p)
 {
 	 ostringstream st;
 	 
-	 st << round_by(p.x(), 3) << round_by(p.y(), 3) << round_by(p.z(), 3);
+	 st << round_by(p.x(), 3) << "-" << round_by(p.y(), 3) << "-" << round_by(p.z(), 3);
 
 	 return st.str();
+}
+
+string get_point_name(TVec3d v)
+{
+	return get_point_name(tvec_to_point(v));
+}
+
+Dart_handle add_vertex(TVec3d v, int i_free = -1)
+{
+	Dart_handle result;
+	bool found = false;
+
+	for( LCC::Dart_range::iterator it = lcc.darts().begin(); it != lcc.darts().end(); ++it )
+	{
+		Point c_point = lcc.point(it);
+		if( c_point == tvec_to_point(v) )
+		{
+			if (i_free < 0 || lcc.beta(it, i_free) == lcc.null_dart_handle)
+			{
+				cout << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
+				found = true;
+				result = it;
+				break;
+			}
+		}
+	}
+
+	if( !found )
+	{
+		result = lcc.create_dart( tvec_to_point(v) );
+		cout << "Created " << lcc.point(result) << endl;
+	}
+
+	return result;
+}
+
+Dart_handle add_edge(TVec3d v1, TVec3d v2)
+{
+	Dart_handle result;
+
+	Dart_handle temp_dart = add_vertex(v1, 1);
+	result = add_vertex(v2, 0);
+
+	lcc.sew<1>(temp_dart, result);
+
+	return result;
 }
 
 void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &stream, int level = 1)
@@ -71,10 +92,10 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	stream << "+" << string(level * 2 - 2, '-') << " Polygon (" << poly->getId() << ")" << endl;
 
 	const vector<TVec3d> verts = poly->getVertices();
-	for( vector<const TVec3d>::iterator it = verts.begin(); it != verts.end(); it++ )
+	for( vector<const TVec3d>::iterator it = verts.begin(); it != verts.end(); )
 	{
 		stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
-		add_vertex(*it);
+		add_edge(*it, *++it);
 	}
 
 	cout << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
@@ -118,8 +139,6 @@ string cityobject_to_string(const citygml::CityObject &obj)
 
 int main(int argc, char *argv[])
 {
-	LCC lcc;
-
 	Point p = Point(1,1,1);
 	
 	citygml::ParserParams params;
@@ -135,6 +154,9 @@ int main(int argc, char *argv[])
 
 		cout << cityobject_to_string(*obj);
 	}
+
+	lcc.display_characteristics(cout);
+	cout << endl;
 
 	return 1;
 }
