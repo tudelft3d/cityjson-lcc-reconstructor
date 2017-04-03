@@ -109,10 +109,10 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	stream << "+" << string(level * 2 - 2, '-') << " Polygon (" << poly->getId() << ")" << endl;
 
 	const vector<TVec3d> verts = poly->getVertices();
-	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end(); )
+	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && *it != *(it + 1); it++)
 	{
 		stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
-		add_edge(*it, *++it);
+		add_edge(*it, *(it + 1));
 	}
 
 	cout << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
@@ -149,6 +149,13 @@ string cityobject_to_string(const citygml::CityObject &obj)
 	for (int i = 0; i < obj.getGeometriesCount(); i++)
 	{
 		geometry_to_string( obj.getGeometry(i), string_stream );
+	}
+
+	for (int i = 0; i < obj.getChildCityObjectsCount(); i++)
+	{
+		string_stream << "| Child City Object |" << endl;
+		string_stream << cityobject_to_string( obj.getChildCityObject(i));
+		string_stream << "| END of Child City Object |" << endl;
 	}
 
 	return string_stream.str();
