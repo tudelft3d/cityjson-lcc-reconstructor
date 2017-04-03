@@ -178,5 +178,11 @@ int main(int argc, char *argv[])
 	for(map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
 		cout << it->first << endl;
 
+	if (argc > 2)
+	{
+		const char *out_filename = argv[2];
+		save_combinatorial_map(lcc, out_filename);
+	}
+
 	return 1;
 }
