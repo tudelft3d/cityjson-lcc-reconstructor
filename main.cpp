@@ -109,7 +109,9 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	stream << "+" << string(level * 2 - 2, '-') << " Polygon (" << poly->getId() << ")" << endl;
 
 	const vector<TVec3d> verts = poly->getVertices();
-	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && *it != *(it + 1); it++)
+	int i = 0;
+	// The loop condition is a stupid hack in order to avoid vertices of inner rings
+	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i = 1)
 	{
 		stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
 		add_edge(*it, *(it + 1));
