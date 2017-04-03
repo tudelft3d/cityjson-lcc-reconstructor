@@ -164,16 +164,17 @@ int main(int argc, char *argv[])
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
 	cout << "We found " << city->getNumRootCityObjects() << " root city objects!" << endl << endl;
 
-	if (city->getNumRootCityObjects() > 0)
+	for (int i = 0; i < city->getNumRootCityObjects(); i++)
 	{
 		const citygml::CityObject *obj;
-		obj = &city->getRootCityObject(0);
+		obj = &city->getRootCityObject(i);
 
 		cout << cityobject_to_string(*obj);
-	}
 
-	lcc.display_characteristics(cout);
-	cout << endl;
+		cout << i << ") ";
+		lcc.display_characteristics(cout);
+		cout << endl;
+	}
 
 	for(map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
 		cout << it->first << endl;
@@ -184,5 +185,5 @@ int main(int argc, char *argv[])
 		save_combinatorial_map(lcc, out_filename);
 	}
 
-	return 1;
+	return 0;
 }
