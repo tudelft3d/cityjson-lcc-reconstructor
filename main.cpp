@@ -164,7 +164,13 @@ int main(int argc, char *argv[])
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
 	cout << "We found " << city->getNumRootCityObjects() << " root city objects!" << endl << endl;
 
-	for (int i = 0; i < city->getNumRootCityObjects(); i++)
+	int object_limit = city->getNumRootCityObjects();
+	if (argc > 3)
+	{
+		object_limit = atoi(argv[3]);
+	}
+
+	for (int i = 0; i < object_limit; i++)
 	{
 		const citygml::CityObject *obj;
 		obj = &city->getRootCityObject(i);
