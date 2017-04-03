@@ -19,7 +19,7 @@ typedef LCC::Vector Vector;
 typedef LCC::FT FT;
 
 LCC lcc;
-map<string, vector<Dart_handle>> index_1_cell;
+map<string, Dart_handle> index_1_cell;
 
 Point tvec_to_point(TVec3d v)
 {
@@ -44,6 +44,12 @@ string get_point_name(Point p)
 string get_point_name(TVec3d v)
 {
 	return get_point_name(tvec_to_point(v));
+}
+
+template <class T>
+string get_edge_name(T v1, T v2)
+{
+	return get_point_name(v1) + "-" + get_point_name(v2);
 }
 
 Dart_handle add_vertex(TVec3d v, int i_free = -1)
@@ -79,10 +85,21 @@ Dart_handle add_edge(TVec3d v1, TVec3d v2)
 {
 	Dart_handle result;
 
-	Dart_handle temp_dart = add_vertex(v1, 1);
-	result = add_vertex(v2, 0);
+	result = add_vertex(v1, 1);
+	Dart_handle temp_dart = add_vertex(v2, 0);
 
-	lcc.sew<1>(temp_dart, result);
+	lcc.sew<1>(result, temp_dart);
+
+	index_1_cell[get_edge_name(v1, v2)] = result;
+
+	if (index_1_cell[get_edge_name(v2, v1)] != NULL)
+	{
+		cout << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
+		lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
+
+		index_1_cell.erase(get_edge_name(v1, v2));
+		index_1_cell.erase(get_edge_name(v2, v1));
+	}
 
 	return result;
 }
@@ -92,7 +109,7 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	stream << "+" << string(level * 2 - 2, '-') << " Polygon (" << poly->getId() << ")" << endl;
 
 	const vector<TVec3d> verts = poly->getVertices();
-	for( vector<const TVec3d>::iterator it = verts.begin(); it != verts.end(); )
+	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end(); )
 	{
 		stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
 		add_edge(*it, *++it);
@@ -157,6 +174,9 @@ int main(int argc, char *argv[])
 
 	lcc.display_characteristics(cout);
 	cout << endl;
+
+	for(map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
+		cout << it->first << endl;
 
 	return 1;
 }
