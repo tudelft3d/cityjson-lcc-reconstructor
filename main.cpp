@@ -34,11 +34,13 @@ double round_by(float f, int d)
 
 string get_point_name(Point p)
 {
-	 ostringstream st;
-	 
-	 st << round_by(p.x(), 3) << "-" << round_by(p.y(), 3) << "-" << round_by(p.z(), 3);
+	ostringstream st;
 
-	 return st.str();
+	st << fixed << setprecision(3);
+
+	st << round_by(p.x(), 3) << "-" << round_by(p.y(), 3) << "-" << round_by(p.z(), 3);
+
+	return st.str();
 }
 
 string get_point_name(TVec3d v)
@@ -141,7 +143,7 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	{
 		if (get_point_name(*it) == get_point_name(*(it + 1)))
 		{
-			stream << "|" << string( level * 2 - 1, '.') << " IGNORING <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
+			stream << "|" << string( level * 2 - 1, '.') << " IGNORING <" << it->x << "=" << (it + 1)->x << ", " << it->y << ", " << it->z << "> - " << get_point_name(*it) << "-" << get_point_name(*(it + 1)) << endl;
 		}
 		else
 		{
