@@ -10,6 +10,8 @@
 #include <geometry.h>
 #include <polygon.h>
 
+#define PRECISION 5
+
 using namespace std;
 
 typedef CGAL::Linear_cell_complex_for_combinatorial_map<3> LCC;
@@ -36,9 +38,9 @@ string get_point_name(Point p)
 {
 	ostringstream st;
 
-	st << fixed << setprecision(3);
+	st << fixed << setprecision(PRECISION);
 
-	st << round_by(p.x(), 3) << "-" << round_by(p.y(), 3) << "-" << round_by(p.z(), 3);
+	st << round_by(p.x(), PRECISION) << "-" << round_by(p.y(), PRECISION) << "-" << round_by(p.z(), PRECISION);
 
 	return st.str();
 }
