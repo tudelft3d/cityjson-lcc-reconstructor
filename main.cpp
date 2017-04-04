@@ -46,6 +46,30 @@ string get_point_name(TVec3d v)
 	return get_point_name(tvec_to_point(v));
 }
 
+string index_to_string(map<string, Dart_handle>::iterator it)
+{
+	ostringstream str;
+
+	str << it->first << ": ";
+	if (it->second == NULL)
+		str << "IS NULL" << endl;
+	else
+		str << lcc.point(it->second) << endl;
+
+	return str.str();
+}
+
+void show_null_index_records()
+{
+	for( map<string, Dart_handle>::iterator it = index_1_cell.begin(); it != index_1_cell.end(); it++)
+	{
+		if (it->second == NULL)
+		{
+			cout << "NOW " << it->first << " IS NULL!!!!!" << endl;
+		}
+	}
+}
+
 template <class T>
 string get_edge_name(T v1, T v2)
 {
@@ -92,7 +116,7 @@ Dart_handle add_edge(TVec3d v1, TVec3d v2)
 
 	index_1_cell[get_edge_name(v1, v2)] = result;
 
-	if (index_1_cell[get_edge_name(v2, v1)] != NULL)
+	if (index_1_cell.find(get_edge_name(v2, v1)) != index_1_cell.end())
 	{
 		cout << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
 		lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
@@ -100,6 +124,8 @@ Dart_handle add_edge(TVec3d v1, TVec3d v2)
 		index_1_cell.erase(get_edge_name(v1, v2));
 		index_1_cell.erase(get_edge_name(v2, v1));
 	}
+
+	show_null_index_records();
 
 	return result;
 }
@@ -113,8 +139,15 @@ void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &s
 	// The loop condition is a stupid hack in order to avoid vertices of inner rings
 	for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i = 1)
 	{
-		stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
-		add_edge(*it, *(it + 1));
+		if (get_point_name(*it) == get_point_name(*(it + 1)))
+		{
+			stream << "|" << string( level * 2 - 1, '.') << " IGNORING <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
+		}
+		else
+		{
+			stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
+			add_edge(*it, *(it + 1));
+		}
 	}
 
 	cout << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
@@ -155,9 +188,9 @@ string cityobject_to_string(const citygml::CityObject &obj)
 
 	for (int i = 0; i < obj.getChildCityObjectsCount(); i++)
 	{
-		string_stream << "| Child City Object |" << endl;
+		string_stream << "+ Child City Object +" << endl;
 		string_stream << cityobject_to_string( obj.getChildCityObject(i));
-		string_stream << "| END of Child City Object |" << endl;
+		string_stream << "+ END of Child City Object +" << endl;
 	}
 
 	return string_stream.str();
@@ -188,11 +221,14 @@ int main(int argc, char *argv[])
 
 		cout << i << ") ";
 		lcc.display_characteristics(cout);
-		cout << endl;
+		cout << endl << endl;
 	}
 
+	cout << "This is the final status of the 1-cell index" << endl << "--------" << endl;
 	for(map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
-		cout << it->first << endl;
+	{
+		cout << index_to_string(it);
+	}
 
 	if (argc > 2)
 	{
