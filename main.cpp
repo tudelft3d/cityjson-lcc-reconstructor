@@ -11,32 +11,54 @@
 
 using namespace std;
 
+void show_help()
+{
+	cout << "CityGML to Linear Complex Cell converter (for Combinatorial Map)" << endl;
+	cout << "============" << endl;
+}
+
 int main(int argc, char *argv[])
 {	
+	if (argc == 1)
+	{
+		show_help();
+		return 0;
+	}
+
 	// Load the CityGML model
 	citygml::ParserParams params;
 	const char *filename = argv[1];
+	const char *out_filename = "";
 
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
 	cout << "We found " << city->getNumRootCityObjects() << " root city objects!" << endl << endl;
 
 	// Initialize the CityGML reader
 	CityGmlReader reader;
-	if (argc > 3)
+	for (int i = 2; i < argc; ++i)
 	{
-		reader.setObjectLimit(atoi(argv[3]));
-	}
-
-	if (argc > 4)
-	{
-		reader.setPrecision(atoi(argv[4]));
+		if (string(argv[i]) == "-o") {
+			out_filename = argv[++i];
+			cout << " - Will export as " << out_filename << endl;
+		}
+		else if (string(argv[i]) == "-s") {
+			reader.setStartingIndex(atoi(argv[++i]));
+			cout << " - Will start from index " << reader.getStartingIndex() << endl;
+		}
+		else if (string(argv[i]) == "-c") {
+			reader.setObjectLimit(atoi(argv[++i]));
+			cout << " - Will only export " << reader.getObjectLimit() << " objects" << endl;
+		}
+		else if (string(argv[i]) == "-p") {
+			reader.setPrecision(atoi(argv[++i]));
+			cout << " - Will work with precision of " << reader.getPrecision() << " digits" << endl;
+		}
 	}
 
 	LCC lcc = reader.readCityModel(city);
 
-	if (argc > 2)
+	if (out_filename != NULL && out_filename[0] != '\0')
 	{
-		const char *out_filename = argv[2];
 		save_combinatorial_map(lcc, out_filename);
 	}
 

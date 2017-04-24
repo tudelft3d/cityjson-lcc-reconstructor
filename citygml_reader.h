@@ -65,7 +65,7 @@ public:
 		{
 			if (it->second == NULL)
 			{
-				cout << "NOW " << it->first << " IS NULL!!!!!" << endl;
+				log_str << "NOW " << it->first << " IS NULL!!!!!" << endl;
 			}
 		}
 	}
@@ -88,7 +88,7 @@ public:
 			{
 				if (i_free < 0 || lcc.beta(it, i_free) == lcc.null_dart_handle)
 				{
-					cout << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
+					log_str << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
 					found = true;
 					result = it;
 					break;
@@ -99,7 +99,7 @@ public:
 		if( !found )
 		{
 			result = lcc.create_dart( tvec_to_point(v) );
-			cout << "Created " << lcc.point(result) << endl;
+			log_str << "Created " << lcc.point(result) << endl;
 		}
 
 		return result;
@@ -118,7 +118,7 @@ public:
 
 		if (index_1_cell.find(get_edge_name(v2, v1)) != index_1_cell.end())
 		{
-			cout << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
+			log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
 			lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
 
 			index_1_cell.erase(get_edge_name(v1, v2));
@@ -150,7 +150,7 @@ public:
 			}
 		}
 
-		cout << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
+		log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
 	}
 
 	void geometry_to_string(const citygml::Geometry &geo, ostringstream &stream, int level = 1)
@@ -203,7 +203,7 @@ public:
 			object_limit = city->getNumRootCityObjects();
 		}
 
-		for (int i = 0; i < object_limit; i++)
+		for (int i = start_i; i < start_i + object_limit; i++)
 		{
 			const citygml::CityObject *obj;
 			obj = &city->getRootCityObject(i);
@@ -213,14 +213,32 @@ public:
 			log_str << i << ") ";
 			lcc.display_characteristics(log_str);
 			log_str << endl << endl;
+
+			cout << "\rDone with " << i - start_i + 1 << "/" << object_limit;
+			cout.flush();
 		}
 
 		return lcc;
 	}
 
+	void setStartingIndex(int start_index)
+	{
+		start_i = start_index;
+	}
+
+	int getStartingIndex()
+	{
+		return start_i;
+	}
+
 	void setObjectLimit(int new_limit)
 	{
 		object_limit = new_limit;
+	}
+
+	int getObjectLimit()
+	{
+		return object_limit;
 	}
 
 	string getLog()
@@ -249,5 +267,10 @@ public:
 	void setPrecision(int new_precision)
 	{
 		precision = new_precision;
+	}
+
+	int getPrecision()
+	{
+		return precision;
 	}
 };
