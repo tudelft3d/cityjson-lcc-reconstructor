@@ -27,6 +27,11 @@ int main(int argc, char *argv[])
 		reader.setObjectLimit(atoi(argv[3]));
 	}
 
+	if (argc > 4)
+	{
+		reader.setPrecision(atoi(argv[4]));
+	}
+
 	LCC lcc = reader.readCityModel(city);
 
 	if (argc > 2)

@@ -4,8 +4,6 @@
 
 #include "typedefs.h"
 
-#define PRECISION 3
-
 using namespace std;
 
 class CityGmlReader
@@ -15,6 +13,8 @@ class CityGmlReader
 private:
 	LCC lcc;
 	int start_i = 0, object_limit = -1;
+	int precision = 3;
+
 	ostringstream log_str;
 	map<string, Dart_handle> index_1_cell;
 
@@ -34,9 +34,9 @@ public:
 	{
 		ostringstream st;
 
-		st << fixed << setprecision(PRECISION);
+		st << fixed << setprecision(precision);
 
-		st << round_by(p.x(), PRECISION) << "-" << round_by(p.y(), PRECISION) << "-" << round_by(p.z(), PRECISION);
+		st << round_by(p.x(), precision) << "-" << round_by(p.y(), precision) << "-" << round_by(p.z(), precision);
 
 		return st.str();
 	}
@@ -244,5 +244,10 @@ public:
 	LCC getLinearCellComplex()
 	{
 		return lcc;
+	}
+
+	void setPrecision(int new_precision)
+	{
+		precision = new_precision;
 	}
 };
