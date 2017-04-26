@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	citygml::ParserParams params;
 	const char *filename = argv[1];
 	const char *out_filename = "";
+	bool show_log = false;
 
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
 	cout << "We found " << city->getNumRootCityObjects() << " root city objects!" << endl << endl;
@@ -53,6 +54,10 @@ int main(int argc, char *argv[])
 			reader.setPrecision(atoi(argv[++i]));
 			cout << " - Will work with precision of " << reader.getPrecision() << " digits" << endl;
 		}
+		else if (string(argv[i]) == "-l")
+		{
+			show_log = true;
+		}
 	}
 
 	LCC lcc = reader.readCityModel(city);
@@ -60,6 +65,12 @@ int main(int argc, char *argv[])
 	if (out_filename != NULL && out_filename[0] != '\0')
 	{
 		save_combinatorial_map(lcc, out_filename);
+	}
+
+	if (show_log)
+	{
+		cout << reader.getLog();
+		cout << reader.getIndex();
 	}
 
 	return 0;

@@ -24,9 +24,9 @@ public:
 		return Point(v.x, v.y, v.z);
 	}
 
-	double round_by(float f, int d)
+	double round_by(double f, int d)
 	{
-		float ex = pow(10, d);
+		double ex = pow(10, d);
 		return round(f * ex) / ex;
 	}
 
@@ -136,8 +136,9 @@ public:
 
 		const vector<TVec3d> verts = poly->getVertices();
 		int i = 0;
+
 		// The loop condition is a stupid hack in order to avoid vertices of inner rings
-		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i = 1)
+		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
 		{
 			if (get_point_name(*it) == get_point_name(*(it + 1)))
 			{
@@ -146,8 +147,24 @@ public:
 			else
 			{
 				stream << "|" << string( level * 2 - 1, '.') << " <" << it->x << ", " << it->y << ", " << it->z << ">" << endl;
-				add_edge(*it, *(it + 1));
+				i++;
 			}
+		}
+
+		if (i > 2)
+		{
+			i = 0;
+			for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
+			{
+				if (get_point_name(*it) != get_point_name(*(it + 1)))
+				{
+					add_edge(*it, *(it + 1));
+				}
+			}
+		}
+		else
+		{
+			log_str << "Ignoring this polygon because only 2 individual lines where found." << endl;
 		}
 
 		log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
@@ -190,7 +207,7 @@ public:
 		{
 			string_stream << "+ Child City Object +" << endl;
 			string_stream << cityobject_to_string( obj.getChildCityObject(i));
-			string_stream << "+ dEND of Child City Object +" << endl;
+			string_stream << "+ END of Child City Object +" << endl;
 		}
 
 		return string_stream.str();
@@ -214,9 +231,11 @@ public:
 			lcc.display_characteristics(log_str);
 			log_str << endl << endl;
 
-			cout << "\rDone with " << i - start_i + 1 << "/" << object_limit;
+			cout << "\rDone with " << i - start_i + 1 << "/" << object_limit << "(" << (lcc.is_valid() == true ? "valid" : "invalid")<< ")";
 			cout.flush();
 		}
+
+		cout << endl;
 
 		return lcc;
 	}
