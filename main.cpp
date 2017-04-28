@@ -2,7 +2,6 @@
 #include <fstream>
 #include <map>
 #include <vector>
-#include <CGAL/Linear_cell_complex_for_combinatorial_map.h>
 #include <stdio.h>
 
 #include "typedefs.h"
@@ -29,6 +28,7 @@ int main(int argc, char *argv[])
 	citygml::ParserParams params;
 	const char *filename = argv[1];
 	const char *out_filename = "";
+	const char *off_filename = "";
 	bool show_log = false;
 
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
@@ -41,6 +41,10 @@ int main(int argc, char *argv[])
 		if (string(argv[i]) == "-o") {
 			out_filename = argv[++i];
 			cout << " - Will export as " << out_filename << endl;
+		}
+		else if (string(argv[i]) == "-off") {
+			off_filename = argv[++i];
+			cout << " - Will export off file as " << off_filename << endl;
 		}
 		else if (string(argv[i]) == "-s") {
 			reader.setStartingIndex(atoi(argv[++i]));
@@ -65,6 +69,11 @@ int main(int argc, char *argv[])
 	if (out_filename != NULL && out_filename[0] != '\0')
 	{
 		save_combinatorial_map(lcc, out_filename);
+	}
+
+	if (off_filename != NULL && off_filename[0] != '\0')
+	{
+		write_off(lcc, off_filename);
 	}
 
 	if (show_log)
