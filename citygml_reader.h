@@ -88,7 +88,7 @@ public:
 			{
 				if (i_free < 0 || lcc.beta(it, i_free) == lcc.null_dart_handle)
 				{
-					log_str << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
+					// log_str << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
 					found = true;
 					result = it;
 					break;
@@ -99,7 +99,7 @@ public:
 		if( !found )
 		{
 			result = lcc.create_dart( tvec_to_point(v) );
-			log_str << "Created " << lcc.point(result) << endl;
+			// log_str << "Created " << lcc.point(result) << endl;
 		}
 
 		return result;
@@ -118,7 +118,7 @@ public:
 
 		if (index_1_cell.find(get_edge_name(v2, v1)) != index_1_cell.end())
 		{
-			log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
+			// log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
 			lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
 
 			index_1_cell.erase(get_edge_name(v1, v2));
@@ -137,7 +137,7 @@ public:
 		const vector<TVec3d> verts = poly->getVertices();
 		int i = 0;
 
-		// The loop condition is a stupid hack in order to avoid vertices of inner rings
+		// This loop condition is a stupid hack in order to avoid vertices of inner rings
 		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
 		{
 			if (get_point_name(*it) == get_point_name(*(it + 1)))
