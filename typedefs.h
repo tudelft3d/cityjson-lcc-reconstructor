@@ -107,7 +107,6 @@ template<>
 inline void write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree & node,
                                                    const Volume_info& arg)
 {
-	std::cout<<"CALLED"<<std::endl;
   boost::property_tree::ptree & nValue = node.add("v","");
   nValue.add("status",(int)arg.m_status);
   nValue.add("color-r",(int)arg.m_color.r());

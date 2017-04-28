@@ -4,6 +4,11 @@
 #include <vector>
 #include <stdio.h>
 
+#include <boost/foreach.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include "typedefs.h"
 
 #include "citygml_reader.h"

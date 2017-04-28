@@ -213,6 +213,15 @@ public:
 		return string_stream.str();
 	}
 
+	void init_all_volumes()
+	{
+		for (LCC::One_dart_per_cell_range<3>::iterator
+       		it(lcc.one_dart_per_cell<3>().begin());
+       		it.cont(); ++it)
+	    	if ( lcc.attribute<3>(it)==LCC::null_handle )
+	    		{ lcc.set_attribute<3>(it, lcc.create_attribute<3>()); }
+	}
+
 	LCC readCityModel(CityMdl city)
 	{
 		if (object_limit == -1)
@@ -236,6 +245,8 @@ public:
 		}
 
 		cout << endl;
+
+		init_all_volumes();
 
 		return lcc;
 	}
