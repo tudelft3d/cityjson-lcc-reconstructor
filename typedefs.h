@@ -30,7 +30,8 @@ class Volume_info
                                                            const Volume_info& arg);
 public:
   Volume_info() : m_color(CGAL::Color(255, 255, 255)),
-    m_status( LCC_DEMO_VISIBLE | LCC_DEMO_FILLED )
+    m_status( LCC_DEMO_VISIBLE | LCC_DEMO_FILLED ),
+    m_guid("nothing")
   {}
 
   CGAL::Color& color()
@@ -67,6 +68,16 @@ public:
     else       m_status = m_status ^ LCC_DEMO_FILLED;
   }
 
+  void set_guid(std::string guid)
+  {
+  	m_guid = guid;
+  }
+
+  std::string get_guid()
+  {
+  	return m_guid;
+  }
+
   void negate_visible()
   { set_visible(!is_visible()); }
   void negate_filled()
@@ -75,6 +86,7 @@ public:
 private:
   CGAL::Color m_color;
   char        m_status;
+  std::string      m_guid;
 };
 
 namespace CGAL
@@ -100,6 +112,13 @@ inline void read_cmap_attribute_node<Volume_info>
   }
   catch(const std::exception &  )
   {}
+
+  try
+  {
+  	val.m_guid = v.second.get<std::string>("guid");
+  }
+  catch(const std::exception &  )
+  {}
 }
 
 // Definition of function allowing to save custon information.
@@ -112,6 +131,7 @@ inline void write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree &
   nValue.add("color-r",(int)arg.m_color.r());
   nValue.add("color-g",(int)arg.m_color.g());
   nValue.add("color-b",(int)arg.m_color.b());
+  nValue.add("guid",arg.m_guid);
 }
 
 }
