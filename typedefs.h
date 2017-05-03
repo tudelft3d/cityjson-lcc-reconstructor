@@ -6,6 +6,8 @@
 #include <cityobject.h>
 #include <geometry.h>
 #include <polygon.h>
+#include <object.h>
+#include <attributesmap.h>
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
@@ -16,6 +18,7 @@
 
 #include <CGAL/IO/Color.h>
 #include <CGAL/Timer.h>
+#include <stdlib.h>
 
 // Use to define properties on volumes.
 #define LCC_DEMO_VISIBLE 1 // if not visible => hidden
@@ -29,7 +32,7 @@ class Volume_info
   friend void CGAL::write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree & node,
                                                            const Volume_info& arg);
 public:
-  Volume_info() : m_color(CGAL::Color(255, 255, 255)),
+  Volume_info() : m_color(CGAL::Color(rand() % 256, rand() % 256, rand() % 256)),
     m_status( LCC_DEMO_VISIBLE | LCC_DEMO_FILLED ),
     m_guid("nothing")
   {}
@@ -78,6 +81,16 @@ public:
   	return m_guid;
   }
 
+  void set_attributes(citygml::AttributesMap attributes)
+  {
+      m_attributes = attributes;
+  }
+
+  citygml::AttributesMap get_attributes()
+  {
+      return m_attributes;
+  }
+
   void negate_visible()
   { set_visible(!is_visible()); }
   void negate_filled()
@@ -86,7 +99,8 @@ public:
 private:
   CGAL::Color m_color;
   char        m_status;
-  std::string      m_guid;
+  std::string m_guid;
+  citygml::AttributesMap m_attributes;
 };
 
 namespace CGAL
@@ -132,6 +146,10 @@ inline void write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree &
   nValue.add("color-g",(int)arg.m_color.g());
   nValue.add("color-b",(int)arg.m_color.b());
   nValue.add("guid",arg.m_guid);
+  for (citygml::AttributesMap::const_iterator it = arg.m_attributes.begin(); it != arg.m_attributes.end(); ++it)
+  {
+      nValue.add("attributes." + it->first, it->second.asString());
+  }
 }
 
 }

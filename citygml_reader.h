@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <vector>
 
 #include "typedefs.h"
 
@@ -131,8 +132,10 @@ public:
 		return result;
 	}
 
-	void polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &stream, int level = 1)
+    vector<Dart_handle> polygon_to_string(shared_ptr<const citygml::Polygon> poly, ostringstream &stream, int level = 1)
 	{
+        vector<Dart_handle> result;
+
 		stream << "+" << string(level * 2 - 2, '-') << " Polygon (" << poly->getId() << ")" << endl;
 
 		const vector<TVec3d> verts = poly->getVertices();
@@ -159,7 +162,7 @@ public:
 			{
 				if (get_point_name(*it) != get_point_name(*(it + 1)))
 				{
-					add_edge(*it, *(it + 1));
+                    result.push_back(add_edge(*it, *(it + 1)));
 				}
 			}
 		}
@@ -168,25 +171,37 @@ public:
 			log_str << "Ignoring this polygon because only 2 individual lines where found." << endl;
 		}
 
-		log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl; 
+        log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl;
+
+        return result;
 	}
 
-	void geometry_to_string(const citygml::Geometry &geo, ostringstream &stream, int level = 1)
+    vector<Dart_handle> geometry_to_string(const citygml::Geometry &geo, ostringstream &stream, int level = 1)
 	{
+        vector<Dart_handle> result;
+
 		stream << string(level * 2 - 1, '-') << " Geometry (" << geo.getId() << ")" << endl;
 
 		stream << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geo.getPolygonsCount() << endl;
 		for (int i = 0; i < geo.getPolygonsCount(); i++)
 		{
-			polygon_to_string( geo.getPolygon(i), stream, level + 1 );
+            result = polygon_to_string( geo.getPolygon(i), stream, level + 1 );
 		}
 
 		stream << "|" << string(level * 2 - 1, '-') << " LineString count: " << geo.getLineStringCount() << endl;
 
 		for (int i = 0; i < geo.getGeometriesCount(); i++)
 		{
-			geometry_to_string( geo.getGeometry(i), stream, level + 1 );
+            vector<Dart_handle> new_darts;
+            new_darts = geometry_to_string( geo.getGeometry(i), stream, level + 1 );
+
+            for(vector<Dart_handle>::iterator it = new_darts.begin(); it != new_darts.end(); ++it)
+            {
+                result.push_back(*it);
+            }
 		}
+
+        return result;
 	}
 
 	string cityobject_to_string(const citygml::CityObject &obj)
@@ -201,7 +216,14 @@ public:
 
 		for (int i = 0; i < obj.getGeometriesCount(); i++)
 		{
-			geometry_to_string( obj.getGeometry(i), string_stream );
+            vector<Dart_handle> darts = geometry_to_string( obj.getGeometry(i), string_stream );
+
+            for (vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
+            {
+                init_volume(*it);
+                lcc.info<3>(*it).set_guid(obj.getId());
+                set_attributes(*it, obj.getAttributes());
+            }
 		}
 
 		for (int i = 0; i < obj.getChildCityObjectsCount(); i++)
@@ -219,9 +241,19 @@ public:
 		for (LCC::One_dart_per_cell_range<3>::iterator
        		it(lcc.one_dart_per_cell<3>().begin());
        		it.cont(); ++it)
-	    	if ( lcc.attribute<3>(it)==LCC::null_handle )
-	    		{ lcc.set_attribute<3>(it, lcc.create_attribute<3>()); }
+            init_volume(it);
 	}
+
+    void init_volume(Dart_handle dh)
+    {
+        if ( lcc.attribute<3>(dh)==LCC::null_handle )
+            { lcc.set_attribute<3>(dh, lcc.create_attribute<3>()); }
+    }
+
+    void set_attributes(Dart_handle dh, citygml::AttributesMap attributes)
+    {
+        lcc.info<3>(dh).set_attributes(attributes);
+    }
 
 	LCC readCityModel(CityMdl city)
 	{
