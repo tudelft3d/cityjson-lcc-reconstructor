@@ -1,7 +1,7 @@
 # Created by the script cgal_create_CMakeLists
 # This is the CMake script for compiling a set of CGAL applications.
 
-project( 3d_linking )
+project( citygml2lcc )
 
 cmake_minimum_required(VERSION 2.8.11)
 
@@ -41,6 +41,13 @@ INCLUDE_DIRECTORIES( /usr/local/include/citygml )
 # ##########################################################
 include( CGAL_CreateSingleSourceCGALProgram )
 
-create_single_source_cgal_program( "main.cpp" )
+add_executable(citygml2lcc
+  main.cpp citygml_reader.h
+  typedefs.h)
 
-target_link_libraries( main citygml ${XERCESC_LIBRARY} ${OPENGL_LIBRARIES} )
+add_to_cached_list(CGAL_EXECUTABLE_TARGETS citygml2lcc)
+
+target_link_libraries(citygml2lcc ${CGAL_LIBRARIES}
+                                                 ${CGAL_3RD_PARTY_LIBRARIES})
+
+target_link_libraries( citygml2lcc citygml ${XERCESC_LIBRARY} ${OPENGL_LIBRARIES} )
