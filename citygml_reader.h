@@ -240,6 +240,15 @@ public:
 			const citygml::CityObject *obj;
 			obj = &city->getRootCityObject(i);
 
+			if (!id_filter.empty())
+			{
+				size_t pos = obj->getId().find(id_filter);
+				if (pos == string::npos)
+				{
+					continue;
+				}
+			}
+
 			log_str << cityobject_to_string(*obj);
 
 			log_str << i << ") ";

@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 	const char *filename = argv[1];
 	const char *out_filename = "";
 	const char *off_filename = "";
+	const char *id_filter = "";
 	bool show_log = false;
 
 	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
@@ -62,6 +63,10 @@ int main(int argc, char *argv[])
 		else if (string(argv[i]) == "-p") {
 			reader.setPrecision(atoi(argv[++i]));
 			cout << " - Will work with precision of " << reader.getPrecision() << " digits" << endl;
+		}
+		else if (string(argv[i]) == "-f") {
+			reader.setFilter(argv[++i]);
+			cout << " - Will only process objects with id containing '" << id_filter << "'" << endl;
 		}
 		else if (string(argv[i]) == "-l")
 		{
