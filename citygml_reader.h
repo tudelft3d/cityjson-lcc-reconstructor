@@ -14,6 +14,7 @@ private:
 	LCC lcc;
 	int start_i = 0, object_limit = -1;
 	int precision = 3;
+	string id_filter = "";
 
 	ostringstream log_str;
 	map<string, Dart_handle> index_1_cell;
@@ -229,6 +230,11 @@ public:
 			object_limit = city->getNumRootCityObjects();
 		}
 
+		if (start_i + object_limit > city->getNumRootCityObjects())
+		{
+			object_limit = city->getNumRootCityObjects() - start_i;
+		}
+
 		for (int i = start_i; i < start_i + object_limit; i++)
 		{
 			const citygml::CityObject *obj;
@@ -269,6 +275,11 @@ public:
 	int getObjectLimit()
 	{
 		return object_limit;
+	}
+
+	void setFilter(string filter)
+	{
+		id_filter = filter;
 	}
 
 	string getLog()
