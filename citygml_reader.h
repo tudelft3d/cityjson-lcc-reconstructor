@@ -19,6 +19,7 @@ private:
 
 	ostringstream log_str;
 	map<string, Dart_handle> index_1_cell;
+	map<string, Dart_handle> index_2_cell;
 
 public:
 	Point tvec_to_point(TVec3d v)
@@ -76,6 +77,30 @@ public:
 	string get_edge_name(T v1, T v2)
 	{
 		return get_point_name(v1) + "-" + get_point_name(v2);
+	}
+
+	void get_polygon_name(vector<Dart_handle> darts, string &name, Dart_handle &lowest_dart, bool step_forward)
+	{
+		string lowest_name = get_point_name(lcc.point(darts.front()));
+		lowest_dart = darts.front();
+		for( vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
+		{
+			string new_point = get_point_name(lcc.point(*darts.begin()));
+			if (new_point < lowest_name)
+			{
+				lowest_name = new_point;
+				lowest_dart = *it;
+			}
+		}
+
+		int beta_i = step_forward ? 1 : 0;
+		name = lowest_name;
+		Dart_handle next = lcc.beta(lowest_dart, beta_i);
+		while (next != lowest_dart)
+		{
+			name += "-" + get_point_name(lcc.point(next));
+			next = lcc.beta(next, beta_i);
+		}
 	}
 
 	Dart_handle add_vertex(TVec3d v, int i_free = -1)
@@ -141,7 +166,7 @@ public:
 		const vector<TVec3d> verts = poly->getVertices();
 		int i = 0;
 
-		// This loop condition is a stupid hack in order to avoid vertices of inner rings
+		// This loop condition is a hack in order to avoid vertices of inner rings
 		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
 		{
 			if (get_point_name(*it) == get_point_name(*(it + 1)))
@@ -172,6 +197,26 @@ public:
 		}
 
         log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl;
+
+		string new_name;
+		Dart_handle new_dart;
+		get_polygon_name(result, new_name, new_dart, true);
+
+		string inverse_name;
+		get_polygon_name(result, inverse_name, new_dart, false);
+
+		if (index_2_cell.find(inverse_name) != index_2_cell.end())
+		{
+			Dart_handle other_dart = lcc.beta<0>(index_2_cell[inverse_name]);
+			log_str << "3-Sewing " << new_name << " with " << inverse_name << endl;
+			lcc.sew<3>(new_dart, other_dart);
+
+			index_1_cell.erase(inverse_name);
+		}
+		else
+		{
+			index_2_cell[new_name] = new_dart;
+		}
 
         return result;
 	}
