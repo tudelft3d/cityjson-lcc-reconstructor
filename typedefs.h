@@ -139,10 +139,14 @@ inline void read_cmap_attribute_node<Volume_info>
     val.m_attributes = citygml::AttributesMap();
 
     boost::property_tree::ptree pt = v.second.get_child("attributes");
-    for(iterator iter = pt.begin(); iter != pt.end(); iter++)
+    for(boost::property_tree::ptree::iterator iter = pt.begin(); iter != pt.end(); iter++)
     {
       val.m_attributes[iter->first] =  iter->second.data();
     }
+  }
+  catch(const std::exception &  )
+  {
+    
   }
 }
 
