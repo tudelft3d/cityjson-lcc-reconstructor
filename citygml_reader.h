@@ -96,7 +96,7 @@ public:
 		int beta_i = step_forward ? 1 : 0;
 		name = lowest_name;
 		Dart_handle next = lcc.beta(lowest_dart, beta_i);
-		while (next != lowest_dart)
+        while (next != lowest_dart && next != lcc.null_dart_handle)
 		{
 			name += "-" + get_point_name(lcc.point(next));
 			next = lcc.beta(next, beta_i);
@@ -190,6 +190,27 @@ public:
                     result.push_back(add_edge(*it, *(it + 1)));
 				}
 			}
+
+            // Try to 3-sew with other polygons
+            string new_name;
+            Dart_handle new_dart;
+            get_polygon_name(result, new_name, new_dart, true);
+
+            string inverse_name;
+            get_polygon_name(result, inverse_name, new_dart, false);
+
+            if (index_2_cell.find(inverse_name) != index_2_cell.end())
+            {
+                Dart_handle other_dart = lcc.beta<0>(index_2_cell[inverse_name]);
+                log_str << "3-Sewing " << new_name << " with " << inverse_name << endl;
+                lcc.sew<3>(new_dart, other_dart);
+
+                index_2_cell.erase(inverse_name);
+            }
+            else
+            {
+                index_2_cell[new_name] = new_dart;
+            }
 		}
 		else
 		{
@@ -197,26 +218,6 @@ public:
 		}
 
         log_str << "Now we have " << lcc.number_of_darts() << " darts!" << endl << endl;
-
-		string new_name;
-		Dart_handle new_dart;
-		get_polygon_name(result, new_name, new_dart, true);
-
-		string inverse_name;
-		get_polygon_name(result, inverse_name, new_dart, false);
-
-		if (index_2_cell.find(inverse_name) != index_2_cell.end())
-		{
-			Dart_handle other_dart = lcc.beta<0>(index_2_cell[inverse_name]);
-			log_str << "3-Sewing " << new_name << " with " << inverse_name << endl;
-			lcc.sew<3>(new_dart, other_dart);
-
-			index_1_cell.erase(inverse_name);
-		}
-		else
-		{
-			index_2_cell[new_name] = new_dart;
-		}
 
         return result;
 	}
