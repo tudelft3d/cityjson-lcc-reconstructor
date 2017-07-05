@@ -341,7 +341,7 @@ public:
 				index_1_cell.clear();
 			}
 
-			cout << "\rDone with " << i - start_i + 1 << "/" << object_limit << "(" << (lcc.is_valid() == true ? "valid" : "invalid")<< ")";
+            cout << "\rDone with " << i - start_i + 1 << "/" << object_limit;
 			cout.flush();
 		}
 
