@@ -16,6 +16,7 @@ private:
 	int start_i = 0, object_limit = -1;
 	int precision = 3;
 	string id_filter = "";
+	bool index_1_per_object = false;
 
 	ostringstream log_str;
 	map<string, Dart_handle> index_1_cell;
@@ -145,7 +146,7 @@ public:
 
 		if (index_1_cell.find(get_edge_name(v2, v1)) != index_1_cell.end())
 		{
-			// log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
+            // log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
 			lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
 
 			index_1_cell.erase(get_edge_name(v1, v2));
@@ -191,27 +192,30 @@ public:
 				}
 			}
 
-            // Try to 3-sew with other polygons
-            string new_name;
-            Dart_handle new_dart;
-            get_polygon_name(result, new_name, new_dart, true);
-
-            string inverse_name;
-            get_polygon_name(result, inverse_name, new_dart, false);
-
-            if (index_2_cell.find(inverse_name) != index_2_cell.end())
+            if (result.size() > 2)
             {
-                Dart_handle other_dart = lcc.beta<0>(index_2_cell[inverse_name]);
-                log_str << "3-Sewing " << new_name << " with " << inverse_name << endl;
-                lcc.sew<3>(new_dart, other_dart);
+                // Try to 3-sew with other polygons
+                string new_name;
+                Dart_handle new_dart;
+                get_polygon_name(result, new_name, new_dart, true);
 
-                index_2_cell.erase(inverse_name);
+                string inverse_name;
+                get_polygon_name(result, inverse_name, new_dart, false);
+
+                if (index_2_cell.find(inverse_name) != index_2_cell.end())
+                {
+                    Dart_handle other_dart = lcc.beta<0>(index_2_cell[inverse_name]);
+                    log_str << "3-Sewing " << new_name << " with " << inverse_name << endl;
+                    lcc.sew<3>(new_dart, other_dart);
+
+                    index_2_cell.erase(inverse_name);
+                }
+                else
+                {
+                    index_2_cell[new_name] = new_dart;
+                }
             }
-            else
-            {
-                index_2_cell[new_name] = new_dart;
-            }
-		}
+        }
 		else
 		{
 			log_str << "Ignoring this polygon because only 2 individual lines where found." << endl;
@@ -333,6 +337,10 @@ public:
 			lcc.display_characteristics(log_str);
 			log_str << endl << endl;
 
+			if (index_1_per_object) {
+				index_1_cell.clear();
+			}
+
 			cout << "\rDone with " << i - start_i + 1 << "/" << object_limit << "(" << (lcc.is_valid() == true ? "valid" : "invalid")<< ")";
 			cout.flush();
 		}
@@ -400,5 +408,15 @@ public:
 	int getPrecision()
 	{
 		return precision;
+	}
+
+	void setIndexPerObject(bool new_value)
+	{
+		index_1_per_object = new_value;
+	}
+
+	bool getIndexPerObject()
+	{
+		return index_1_per_object;
 	}
 };

@@ -68,6 +68,10 @@ int main(int argc, char *argv[])
 			reader.setFilter(argv[++i]);
 			cout << " - Will only process objects with id containing '" << id_filter << "'" << endl;
 		}
+		else if (string(argv[i]) == "-i") {
+			reader.setIndexPerObject(true);
+			cout << " - Will only keep the 2-free index per city object" << endl;
+		}
 		else if (string(argv[i]) == "-l")
 		{
 			show_log = true;
