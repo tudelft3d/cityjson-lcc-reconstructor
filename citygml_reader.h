@@ -19,6 +19,7 @@ private:
 	bool index_1_per_object = false;
 
 	ostringstream log_str;
+	map<string, vector<Dart_handle> > index_0_cell;
 	map<string, Dart_handle> index_1_cell;
 	map<string, Dart_handle> index_2_cell;
 
@@ -108,17 +109,23 @@ public:
 	{
 		Dart_handle result;
 		bool found = false;
-
-		for( LCC::Dart_range::iterator it = lcc.darts().begin(); it != lcc.darts().end(); ++it )
+		
+		if (index_0_cell.find(get_point_name(v)) != index_0_cell.end())
 		{
-			Point c_point = lcc.point(it);
-			if( c_point == tvec_to_point(v) )
+			for (vector<Dart_handle>::iterator it = index_0_cell[get_point_name(v)].begin(); it != index_0_cell[get_point_name(v)].end(); ++it)
 			{
-				if (i_free < 0 || lcc.beta(it, i_free) == lcc.null_dart_handle)
+				if (i_free < 0 || lcc.beta(*it, i_free) == lcc.null_dart_handle)
 				{
 					// log_str << "Found " << get_point_name(c_point) << " as " << i_free << "-free dart." << endl;
 					found = true;
-					result = it;
+					result = *it;
+
+					index_0_cell[get_point_name(v)].erase(it);
+					if (index_0_cell[get_point_name(v)].empty())
+					{
+						index_0_cell.erase(get_point_name(v));
+					}
+
 					break;
 				}
 			}
@@ -127,6 +134,7 @@ public:
 		if( !found )
 		{
 			result = lcc.create_dart( tvec_to_point(v) );
+			index_0_cell[ get_point_name(v) ].push_back(result);
 			// log_str << "Created " << lcc.point(result) << endl;
 		}
 
