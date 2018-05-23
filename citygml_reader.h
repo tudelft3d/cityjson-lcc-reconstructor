@@ -19,9 +19,9 @@ private:
 	bool index_1_per_object = false;
 
 	ostringstream log_str;
-	map<string, vector<Dart_handle> > index_0_cell;
-	map<string, Dart_handle> index_1_cell;
-	map<string, Dart_handle> index_2_cell;
+	unordered_map<string, vector<Dart_handle> > index_0_cell;
+  unordered_map<string, Dart_handle> index_1_cell;
+  unordered_map<string, Dart_handle> index_2_cell;
 
 public:
 	Point tvec_to_point(TVec3d v)
@@ -40,8 +40,9 @@ public:
 		ostringstream st;
 
 		st << fixed << setprecision(precision);
+    st << p.x() << "-" << p.y() << "-" << p.z();
 
-		st << round_by(p.x(), precision) << "-" << round_by(p.y(), precision) << "-" << round_by(p.z(), precision);
+		//st << round_by(p.x(), precision) << "-" << round_by(p.y(), precision) << "-" << round_by(p.z(), precision);
 
 		return st.str();
 	}
@@ -51,7 +52,7 @@ public:
 		return get_point_name(tvec_to_point(v));
 	}
 
-	string index_to_string(map<string, Dart_handle>::iterator it)
+	string index_to_string(unordered_map<string, Dart_handle>::iterator it)
 	{
 		ostringstream str;
 
@@ -66,13 +67,15 @@ public:
 
 	void show_null_index_records()
 	{
-		for( map<string, Dart_handle>::iterator it = index_1_cell.begin(); it != index_1_cell.end(); it++)
+#ifdef DEBUG
+		for( unordered_map<string, Dart_handle>::iterator it = index_1_cell.begin(); it != index_1_cell.end(); it++)
 		{
 			if (it->second == NULL)
 			{
 				log_str << "NOW " << it->first << " IS NULL!!!!!" << endl;
 			}
 		}
+#endif // DEBUG
 	}
 
 	template <class T>
@@ -109,10 +112,10 @@ public:
 	{
 		Dart_handle result;
 		bool found = false;
-		
-		if (index_0_cell.find(get_point_name(v)) != index_0_cell.end())
+    string v_name = get_point_name(v);
+		if (index_0_cell.find(v_name) != index_0_cell.end())
 		{
-			for (vector<Dart_handle>::iterator it = index_0_cell[get_point_name(v)].begin(); it != index_0_cell[get_point_name(v)].end(); ++it)
+			for (vector<Dart_handle>::iterator it = index_0_cell[v_name].begin(); it != index_0_cell[v_name].end(); ++it)
 			{
 				if (i_free < 0 || lcc.beta(*it, i_free) == lcc.null_dart_handle)
 				{
@@ -120,10 +123,10 @@ public:
 					found = true;
 					result = *it;
 
-					index_0_cell[get_point_name(v)].erase(it);
-					if (index_0_cell[get_point_name(v)].empty())
+					index_0_cell[v_name].erase(it);
+					if (index_0_cell[v_name].empty())
 					{
-						index_0_cell.erase(get_point_name(v));
+						index_0_cell.erase(v_name);
 					}
 
 					break;
@@ -134,7 +137,7 @@ public:
 		if( !found )
 		{
 			result = lcc.create_dart( tvec_to_point(v) );
-			index_0_cell[ get_point_name(v) ].push_back(result);
+			index_0_cell[v_name].push_back(result);
 			// log_str << "Created " << lcc.point(result) << endl;
 		}
 
@@ -150,15 +153,18 @@ public:
 
 		lcc.sew<1>(result, temp_dart);
 
-		index_1_cell[get_edge_name(v1, v2)] = result;
+    string edge_v1_v2_name = get_edge_name(v1, v2);
+    string edge_v2_v1_name = get_edge_name(v2, v1);
 
-		if (index_1_cell.find(get_edge_name(v2, v1)) != index_1_cell.end())
+		index_1_cell[edge_v1_v2_name] = result;
+
+		if (index_1_cell.find(edge_v2_v1_name) != index_1_cell.end())
 		{
             // log_str << "Sewing " << get_edge_name(v1, v2) << " with " << get_edge_name(v2, v1) << endl;
-			lcc.sew<2>(result, index_1_cell[get_edge_name(v2, v1)]);
+			lcc.sew<2>(result, index_1_cell[edge_v2_v1_name]);
 
-			index_1_cell.erase(get_edge_name(v1, v2));
-			index_1_cell.erase(get_edge_name(v2, v1));
+			index_1_cell.erase(edge_v1_v2_name);
+			index_1_cell.erase(edge_v2_v1_name);
 		}
 
 		show_null_index_records();
@@ -176,7 +182,7 @@ public:
 		int i = 0;
 
 		// This loop condition is a hack in order to avoid vertices of inner rings
-		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
+		for( auto it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
 		{
 			if (get_point_name(*it) == get_point_name(*(it + 1)))
 			{
@@ -192,7 +198,7 @@ public:
 		if (i > 2)
 		{
 			i = 0;
-			for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
+			for( auto it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
 			{
 				if (get_point_name(*it) != get_point_name(*(it + 1)))
 				{
@@ -342,8 +348,10 @@ public:
 			log_str << cityobject_to_string(*obj);
 
 			log_str << i << ") ";
+#ifdef DEBUG
 			lcc.display_characteristics(log_str);
-			log_str << endl << endl;
+#endif DEBUG
+      log_str << endl << endl;
 
 			if (index_1_per_object) {
 				index_1_cell.clear();
@@ -395,7 +403,7 @@ public:
 		ostringstream str;
 
 		str << "This is the final status of the 1-cell index" << endl << "--------" << endl;
-		for(map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
+		for(unordered_map<string, Dart_handle>::iterator it=index_1_cell.begin(); it!=index_1_cell.end(); ++it)
 		{
 			str << index_to_string(it);
 		}
