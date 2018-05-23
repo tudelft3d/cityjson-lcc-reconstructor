@@ -138,7 +138,7 @@ public:
 		int i = 0;
 
 		// This loop condition is a stupid hack in order to avoid vertices of inner rings
-		for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
+		for( auto it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++)
 		{
 			if (get_point_name(*it) == get_point_name(*(it + 1)))
 			{
@@ -154,7 +154,7 @@ public:
 		if (i > 2)
 		{
 			i = 0;
-			for( vector<const TVec3d>::iterator it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
+			for( auto it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
 			{
 				if (get_point_name(*it) != get_point_name(*(it + 1)))
 				{
