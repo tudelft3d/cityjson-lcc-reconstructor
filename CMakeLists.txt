@@ -6,11 +6,12 @@ project( citygml2lcc )
 cmake_minimum_required(VERSION 2.8.11)
 
 # This is to force the compiler comply with c++11 standard - libcitygml stuff
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 11)
 
 # CGAL and its components
 find_package( CGAL QUIET COMPONENTS  )
-find_package( OpenGL REQUIRED )
+#find_package( OpenGL REQUIRED )
 
 if ( NOT CGAL_FOUND )
 
