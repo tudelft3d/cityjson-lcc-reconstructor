@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
 			cout << " - Will export off file as " << off_filename << endl;
 		}
 		else if (string(argv[i]) == "-s") {
-			reader.setStartingIndex(atoi(argv[++i]));
+			reader.setStartingIndex(static_cast<unsigned int>(atoi(argv[++i])));
 			cout << " - Will start from index " << reader.getStartingIndex() << endl;
 		}
 		else if (string(argv[i]) == "-c") {
-			reader.setObjectLimit(atoi(argv[++i]));
+			reader.setObjectLimit(static_cast<unsigned int>(atoi(argv[++i])));
 			cout << " - Will only export " << reader.getObjectLimit() << " objects" << endl;
 		}
 		else if (string(argv[i]) == "-p") {
@@ -80,12 +80,12 @@ int main(int argc, char *argv[])
 
 	LCC lcc = reader.readCityModel(city);
 
-	if (out_filename != NULL && out_filename[0] != '\0')
+	if (out_filename != nullptr && out_filename[0] != '\0')
 	{
 		save_combinatorial_map(lcc, out_filename);
 	}
 
-	if (off_filename != NULL && off_filename[0] != '\0')
+	if (off_filename != nullptr && off_filename[0] != '\0')
 	{
 		write_off(lcc, off_filename);
 	}

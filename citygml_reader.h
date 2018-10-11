@@ -13,7 +13,7 @@ class CityGmlReader
 
 private:
 	LCC lcc;
-	int start_i = 0, object_limit = -1;
+	unsigned int start_i = 0, object_limit = 0;
 	int precision = 3;
 	string id_filter = "";
 	bool index_1_per_object = false;
@@ -57,7 +57,7 @@ public:
 		ostringstream str;
 
 		str << it->first << ": ";
-		if (it->second == NULL)
+		if (it->second == nullptr)
 			str << "IS NULL" << endl;
 		else
 			str << lcc.point(it->second) << endl;
@@ -247,14 +247,14 @@ public:
 		stream << string(level * 2 - 1, '-') << " Geometry (" << geo.getId() << ")" << endl;
 
 		stream << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geo.getPolygonsCount() << endl;
-		for (int i = 0; i < geo.getPolygonsCount(); i++)
+		for (unsigned int i = 0; i < geo.getPolygonsCount(); i++)
 		{
             result = polygon_to_string( geo.getPolygon(i), stream, level + 1 );
 		}
 
 		stream << "|" << string(level * 2 - 1, '-') << " LineString count: " << geo.getLineStringCount() << endl;
 
-		for (int i = 0; i < geo.getGeometriesCount(); i++)
+		for (unsigned int i = 0; i < geo.getGeometriesCount(); i++)
 		{
             vector<Dart_handle> new_darts;
             new_darts = geometry_to_string( geo.getGeometry(i), stream, level + 1 );
@@ -278,7 +278,7 @@ public:
 		string_stream << "Type: " << obj.getTypeAsString() << endl;
 		string_stream << "Geometry count: " << obj.getGeometriesCount() << endl;
 
-		for (int i = 0; i < obj.getGeometriesCount(); i++)
+		for (unsigned int i = 0; i < obj.getGeometriesCount(); i++)
 		{
             vector<Dart_handle> darts = geometry_to_string( obj.getGeometry(i), string_stream );
 
@@ -290,7 +290,7 @@ public:
             }
 		}
 
-		for (int i = 0; i < obj.getChildCityObjectsCount(); i++)
+		for (unsigned int i = 0; i < obj.getChildCityObjectsCount(); i++)
 		{
 			string_stream << "+ Child City Object +" << endl;
 			string_stream << cityobject_to_string( obj.getChildCityObject(i));
@@ -321,7 +321,7 @@ public:
 
 	LCC readCityModel(CityMdl city)
 	{
-		if (object_limit == -1)
+		if (object_limit == 0)
 		{
 			object_limit = city->getNumRootCityObjects();
 		}
@@ -331,10 +331,10 @@ public:
 			object_limit = city->getNumRootCityObjects() - start_i;
 		}
 
-		for (int i = start_i; i < start_i + object_limit; i++)
+		for (unsigned int i = start_i; i < start_i + object_limit; i++)
 		{
 			const citygml::CityObject *obj;
-			obj = &city->getRootCityObject(i);
+			obj = &city->getRootCityObject(static_cast<int>(i));
 
 			if (!id_filter.empty())
 			{
@@ -350,7 +350,7 @@ public:
 			log_str << i << ") ";
 #ifdef DEBUG
 			lcc.display_characteristics(log_str);
-#endif DEBUG
+#endif
       log_str << endl << endl;
 
 			if (index_1_per_object) {
@@ -368,22 +368,22 @@ public:
 		return lcc;
 	}
 
-	void setStartingIndex(int start_index)
+	void setStartingIndex(unsigned int start_index)
 	{
 		start_i = start_index;
 	}
 
-	int getStartingIndex()
+	unsigned int getStartingIndex()
 	{
 		return start_i;
 	}
 
-	void setObjectLimit(int new_limit)
+	void setObjectLimit(unsigned int new_limit)
 	{
 		object_limit = new_limit;
 	}
 
-	int getObjectLimit()
+	unsigned int getObjectLimit()
 	{
 		return object_limit;
 	}
