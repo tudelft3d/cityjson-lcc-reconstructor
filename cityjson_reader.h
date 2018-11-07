@@ -196,13 +196,17 @@ public:
 
 		if (verts.size() > 2)
 		{
-			int i = 0;
-			for(auto it = verts.begin(); (it + 1) != verts.end() && (*it != *verts.begin() || i == 0); it++, i++)
+			for(auto it = verts.begin(); (it + 1) != verts.end(); it++)
 			{
 				if (get_point_name(*it) != get_point_name(*(it + 1)))
 				{
                     result.push_back(add_edge(*it, *(it + 1)));
 				}
+			}
+
+			if (get_point_name(verts.back()) != get_point_name(*verts.begin()))
+			{
+				result.push_back(add_edge(verts.back(), *verts.begin()));
 			}
 
             if (result.size() > 2)
