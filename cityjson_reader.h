@@ -256,7 +256,7 @@ public:
 				}
 			}
 		}
-		else if (geom["type"] == "MultiSurface	")
+		else if (geom["type"] == "MultiSurface")
 		{
 			stream << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geom["boundaries"].size() << endl;
 			for (auto& polygon : geom["boundaries"])
