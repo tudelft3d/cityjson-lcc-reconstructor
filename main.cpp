@@ -12,6 +12,7 @@
 #include "typedefs.h"
 
 #include "citygml_reader.h"
+#include "cityjson_reader.h"
 
 using namespace std;
 
@@ -26,10 +27,28 @@ int main(int argc, char *argv[])
 	if (argc == 1)
 	{
 		show_help();
+
+		// Load CityJSON
+		ifstream i("/Users/liberostelios/Downloads/DenHaag/DenHaag_01.json");
+		nlohmann::json j;
+		i >> j;
+
+		map<string, nlohmann::json> objs = j["CityObjects"];
+		cout << objs.size() << endl;
+
+		auto first_obj = objs.begin();
+
+		cout << first_obj->first << endl;
+
+		// for (auto const& obj : objs)
+		// {
+		// 	cout << obj.first << endl;
+		// }
+
 		return 0;
 	}
 
-	// Load the CityGML model
+	// Load the CityJSON model
 	citygml::ParserParams params;
 	const char *filename = argv[1];
 	const char *out_filename = "";
@@ -37,11 +56,14 @@ int main(int argc, char *argv[])
 	const char *id_filter = "";
 	bool show_log = false;
 
-	shared_ptr<const citygml::CityModel> city = citygml::load(filename, params);
-	cout << "We found " << city->getNumRootCityObjects() << " root city objects!" << endl << endl;
+	ifstream input_file(filename);
+	nlohmann::json city_model;
+	input_file >> city_model;
 
-	// Initialize the CityGML reader
-	CityGmlReader reader;
+	cout << "We found " << city_model["CityObjects"].size() << " root city objects!" << endl << endl;
+
+	// Initialize the CityJSON reader
+	CityJsonReader reader;
 	for (int i = 2; i < argc; ++i)
 	{
 		if (string(argv[i]) == "-o") {
@@ -78,7 +100,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	LCC lcc = reader.readCityModel(city);
+	LCC lcc = reader.readCityModel(city_model);
 
 	if (out_filename != nullptr && out_filename[0] != '\0')
 	{

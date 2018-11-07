@@ -9,6 +9,8 @@
 #include <object.h>
 #include <attributesmap.h>
 
+#include "thirdparty/json.hpp"
+
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
 #include <CGAL/Linear_cell_complex.h>

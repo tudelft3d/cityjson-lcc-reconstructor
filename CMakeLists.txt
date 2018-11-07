@@ -43,7 +43,7 @@ INCLUDE_DIRECTORIES( /usr/local/include/citygml )
 include( CGAL_CreateSingleSourceCGALProgram )
 
 add_executable(citygml2lcc
-  main.cpp citygml_reader.h
+  main.cpp citygml_reader.h cityjson_reader.h
   typedefs.h)
 
 add_to_cached_list(CGAL_EXECUTABLE_TARGETS citygml2lcc)
