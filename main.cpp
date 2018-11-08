@@ -29,7 +29,7 @@ void show_help()
 	cout << "		-c [count]		Process only the provided number of city objects" << endl;
 	cout << "		-f [filter]		Process only objects where the id matches the provided filter" << endl;
 	cout << "		-i			Clear the 2-free index after every city object" << endl;
-	cout << "		-l			Show log on cout" << endl;
+	cout << "		-l			Show log in standard output" << endl;
 }
 
 int main(int argc, char *argv[])
