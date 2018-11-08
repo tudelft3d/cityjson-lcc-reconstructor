@@ -30,6 +30,15 @@ public:
 
 	Point json_to_point(nlohmann::json p)
 	{
+		if (cityModel.find("transform") != cityModel.end())
+		{
+			nlohmann::json scale, translate;
+			scale = cityModel["transform"]["scale"];
+			translate = cityModel["transform"]["translate"];
+
+			return Point((double)p[0] * (double)scale[0] + (double)translate[0], (double)p[1] * (double)scale[1] + (double)translate[1], (double)p[2] * (double)scale[2] + (double)translate[2]);
+		}
+		
 		return Point(p[0], p[1], p[2]);
 	}
 
