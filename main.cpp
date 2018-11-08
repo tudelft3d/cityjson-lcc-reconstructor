@@ -20,6 +20,16 @@ void show_help()
 {
 	cout << "CityGML to Linear Complex Cell converter (for Combinatorial Map)" << endl;
 	cout << "============" << endl;
+	cout << "Usage: citygml input_file.json [options]" << endl;
+	cout << "	options:" << endl;
+	cout << "		-o [output_file.3map]	Export the C-Map as 3map file" << endl;
+	cout << "		-off [output_file.off]	Export the C-Map as off file" << endl;
+	cout << "		-p [precision]		Use the provided number of decimal digits for comparing coordinates" << endl;
+	cout << "		-s [starting_index]	Start from the provided index" << endl;
+	cout << "		-c [count]		Process only the provided number of city objects" << endl;
+	cout << "		-f [filter]		Process only objects where the id matches the provided filter" << endl;
+	cout << "		-i			Clear the 2-free index after every city object" << endl;
+	cout << "		-l			Show log on cout" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -27,24 +37,6 @@ int main(int argc, char *argv[])
 	if (argc == 1)
 	{
 		show_help();
-
-		// Load CityJSON
-		ifstream i("/Users/liberostelios/Downloads/DenHaag/DenHaag_01.json");
-		nlohmann::json j;
-		i >> j;
-
-		map<string, nlohmann::json> objs = j["CityObjects"];
-		cout << objs.size() << endl;
-
-		auto first_obj = objs.begin();
-
-		cout << first_obj->first << endl;
-
-		// for (auto const& obj : objs)
-		// {
-		// 	cout << obj.first << endl;
-		// }
-
 		return 0;
 	}
 
