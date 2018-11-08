@@ -78,7 +78,7 @@ public:
   	m_guid = guid;
   }
 
-  std::string get_guid()
+  std::string get_guid() const
   {
   	return m_guid;
   }

@@ -28,8 +28,52 @@ void show_help()
 	cout << "		-s [starting_index]	Start from the provided index" << endl;
 	cout << "		-c [count]		Process only the provided number of city objects" << endl;
 	cout << "		-f [filter]		Process only objects where the id matches the provided filter" << endl;
+	cout << "		-n [new_cityjson.json]	Save the city model in a new CityJSON appended with the C-Map" << endl;
 	cout << "		-i			Clear the 2-free index after every city object" << endl;
 	cout << "		-l			Show log in standard output" << endl;
+}
+
+void append_cityjson(nlohmann::json& city, LCC lcc)
+{
+	nlohmann::json darts;
+
+	std::map<LCC::Dart_const_handle, LCC::size_type> myDarts;
+
+	// First we numbered each dart by using the std::map.
+    LCC::Dart_range::const_iterator it(lcc.darts().begin());
+    for(LCC::size_type num=1; num<=lcc.number_of_darts(); ++num, ++it)
+    {
+      	myDarts[it] = num;
+    }
+
+	// Now we save each dart, and its neighbors.
+	it=lcc.darts().begin();
+    for(LCC::size_type num=0; num<lcc.number_of_darts(); ++num, ++it)
+    {
+		// make a dart
+		nlohmann::json new_dart;
+
+		nlohmann::json betas;
+		// the beta, only for non free sews
+		for(unsigned int dim=1; dim<=lcc.dimension; dim++)
+		{
+			if(!lcc.is_free(it, dim))
+			{
+				betas.push_back(myDarts[lcc.beta(it, dim)]);
+			}
+			else
+			{
+				betas.push_back(-1);
+			}
+		}
+
+		new_dart["betas"] = betas;
+		new_dart["parent"] = lcc.info<3>(it).get_guid();
+
+		darts.push_back(new_dart);
+    }
+
+	city["darts"] = darts;
 }
 
 int main(int argc, char *argv[])
@@ -45,6 +89,7 @@ int main(int argc, char *argv[])
 	const char *filename = argv[1];
 	const char *out_filename = "";
 	const char *off_filename = "";
+	const char *cityjson_filename = "";
 	const char *id_filter = "";
 	bool show_log = false;
 
@@ -65,6 +110,11 @@ int main(int argc, char *argv[])
 		else if (string(argv[i]) == "-off") {
 			off_filename = argv[++i];
 			cout << " - Will export off file as " << off_filename << endl;
+		}
+		else if (string(argv[i]) == "-n")
+		{
+			cityjson_filename = argv[++i];
+			cout << " - Will save the city model as " << cityjson_filename << endl;
 		}
 		else if (string(argv[i]) == "-s") {
 			reader.setStartingIndex(static_cast<unsigned int>(atoi(argv[++i])));
@@ -103,6 +153,14 @@ int main(int argc, char *argv[])
 	{
 		write_off(lcc, off_filename);
 	}
+
+	if (cityjson_filename != nullptr && cityjson_filename[0] != '\0')
+	{
+		append_cityjson(city_model, lcc);
+
+		ofstream output_file(cityjson_filename);
+		output_file << city_model;
+	} 
 
 	if (show_log)
 	{
