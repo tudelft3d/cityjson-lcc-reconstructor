@@ -76,6 +76,46 @@ void append_cityjson(nlohmann::json& city, LCC lcc)
 	city["darts"] = darts;
 }
 
+void print_statistics(nlohmann::json& city, LCC lcc)
+{
+    std::vector<unsigned int> cells;
+    cells.push_back(0);
+    cells.push_back(1);
+    cells.push_back(2);
+    cells.push_back(3);
+    cells.push_back(4);
+
+    std::vector<unsigned int> res = lcc.count_cells (cells);
+
+    std::ostringstream os;
+
+    map<string, nlohmann::json> objs = city["CityObjects"];
+    int obj_count = objs.size();
+    int geom_count = 0;
+
+    for (auto& obj : objs)
+    {
+        geom_count += obj.second["geometry"].size();
+    }
+
+    os << "Number of objects: " << obj_count
+       << ", number of geometries: " << geom_count
+       << endl;
+
+    os << "Darts: " << lcc.number_of_darts ()
+       << ",  Vertices:" << res[0]
+       <<",  (Points:"<< lcc.number_of_attributes<0>()<<")"
+      << ",  Edges:" << res[1]
+      << ",  Facets:" << res[2]
+      << ",  Volumes:" << res[3]
+      <<",  (Vol color:"<< lcc.number_of_attributes<3>()<<")"
+     << ",  Connected components:" << res[4]
+     <<",  Valid:"<< (lcc.is_valid()?"true":"FALSE")
+    << endl;
+
+    cout << os.str();
+}
+
 int main(int argc, char *argv[])
 {	
 	if (argc == 1)
@@ -92,6 +132,7 @@ int main(int argc, char *argv[])
 	const char *cityjson_filename = "";
 	const char *id_filter = "";
 	bool show_log = false;
+	bool show_statistics = false;
 
 	ifstream input_file(filename);
 	nlohmann::json city_model;
@@ -140,6 +181,10 @@ int main(int argc, char *argv[])
 		{
 			show_log = true;
 		}
+		else if (string(argv[i]) == "--statistics")
+		{
+			show_statistics = true;
+		}
 	}
 
 	LCC lcc = reader.readCityModel(city_model);
@@ -162,33 +207,16 @@ int main(int argc, char *argv[])
 		output_file << city_model;
 	}
 
-	std::vector<unsigned int> cells;
-	cells.push_back(0);
-	cells.push_back(1);
-	cells.push_back(2);
-	cells.push_back(3);
-	cells.push_back(4);
-
-        std::vector<unsigned int> res = lcc.count_cells (cells);
-
-        std::ostringstream os;
-        os << "Darts: " << lcc.number_of_darts ()
-           << ",  Vertices:" << res[0]
-           <<",  (Points:"<< lcc.number_of_attributes<0>()<<")"
-          << ",  Edges:" << res[1]
-          << ",  Facets:" << res[2]
-          << ",  Volumes:" << res[3]
-          <<",  (Vol color:"<< lcc.number_of_attributes<3>()<<")"
-         << ",  Connected components:" << res[4]
-         <<",  Valid:"<< (lcc.is_valid()?"true":"FALSE");
-
-        cout << os.str();
-
 	if (show_log)
 	{
 		cout << reader.getLog();
 		cout << reader.getIndex();
 	}
+
+	if (show_statistics)
+	  {
+	    print_statistics(city_model, lcc);
+	  }
 
 	return 0;
 }
