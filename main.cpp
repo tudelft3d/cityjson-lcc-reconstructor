@@ -160,7 +160,29 @@ int main(int argc, char *argv[])
 
 		ofstream output_file(cityjson_filename);
 		output_file << city_model;
-	} 
+	}
+
+	std::vector<unsigned int> cells;
+	cells.push_back(0);
+	cells.push_back(1);
+	cells.push_back(2);
+	cells.push_back(3);
+	cells.push_back(4);
+
+        std::vector<unsigned int> res = lcc.count_cells (cells);
+
+        std::ostringstream os;
+        os << "Darts: " << lcc.number_of_darts ()
+           << ",  Vertices:" << res[0]
+           <<",  (Points:"<< lcc.number_of_attributes<0>()<<")"
+          << ",  Edges:" << res[1]
+          << ",  Facets:" << res[2]
+          << ",  Volumes:" << res[3]
+          <<",  (Vol color:"<< lcc.number_of_attributes<3>()<<")"
+         << ",  Connected components:" << res[4]
+         <<",  Valid:"<< (lcc.is_valid()?"true":"FALSE");
+
+        cout << os.str();
 
 	if (show_log)
 	{
