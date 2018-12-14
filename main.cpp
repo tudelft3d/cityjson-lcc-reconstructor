@@ -30,7 +30,8 @@ void show_help()
 	cout << "		-f [filter]		Process only objects where the id matches the provided filter" << endl;
 	cout << "		-n [new_cityjson.json]	Save the city model in a new CityJSON appended with the C-Map" << endl;
 	cout << "		-i			Clear the 2-free index after every city object" << endl;
-	cout << "		-l			Show log in standard output" << endl;
+	cout << "		--show-log, -l		Show log in standard output" << endl;
+	cout << "		--show-statistics	Show statistics for the city model and lcc" << endl;
 }
 
 void append_cityjson(nlohmann::json& city, LCC lcc)
@@ -177,11 +178,11 @@ int main(int argc, char *argv[])
 			reader.setIndexPerObject(true);
 			cout << " - Will only keep the 2-free index per city object" << endl;
 		}
-		else if (string(argv[i]) == "-l")
+		else if (string(argv[i]) == "-l" || string(argv[i]) == "--show-log")
 		{
 			show_log = true;
 		}
-		else if (string(argv[i]) == "--statistics")
+		else if (string(argv[i]) == "--show-statistics")
 		{
 			show_statistics = true;
 		}
