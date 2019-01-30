@@ -29,6 +29,7 @@ void show_help()
 	cout << "		-c [count]		Process only the provided number of city objects" << endl;
 	cout << "		-f [filter]		Process only objects where the id matches the provided filter" << endl;
 	cout << "		-n [new_cityjson.json]	Save the city model in a new CityJSON appended with the C-Map" << endl;
+  cout << "		--only-lod [lod]	Only parse the specific LoD" << endl;
 	cout << "		-i			Clear the 2-free index after every city object" << endl;
 	cout << "		--show-log, -l		Show log in standard output" << endl;
 	cout << "		--show-statistics	Show statistics for the city model and lcc" << endl;
@@ -171,8 +172,8 @@ int main(int argc, char *argv[])
 			cout << " - Will work with precision of " << reader.getPrecision() << " digits" << endl;
 		}
 		else if (string(argv[i]) == "-f") {
-			reader.setFilter(argv[++i]);
-			cout << " - Will only process objects with id containing '" << id_filter << "'" << endl;
+			reader.setIdFilter(argv[++i]);
+            cout << " - Will only process objects with id containing '" << argv[i] << "'" << endl;
 		}
 		else if (string(argv[i]) == "-i") {
 			reader.setIndexPerObject(true);
@@ -186,6 +187,11 @@ int main(int argc, char *argv[])
 		{
 			show_statistics = true;
 		}
+        else if (string(argv[i]) == "--only-old")
+        {
+            reader.setLodFilter(atoi(argv[++i]));
+            cout << " - Will only parse LoD " << argv[i] << endl;
+        }
 	}
 
 	LCC lcc = reader.readCityModel(city_model);

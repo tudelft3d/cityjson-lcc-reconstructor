@@ -15,6 +15,7 @@ private:
   unsigned int start_i = 0, object_limit = 0;
   int precision = 3;
   string id_filter = "";
+  int lod_filter = -1;
   bool index_1_per_object = false;
 
   ostringstream log_str;
@@ -258,6 +259,12 @@ public:
 
     stream << string(level * 2 - 1, '-') << " Geometry (" << geom["type"] << ")" << endl;
 
+    if (lod_filter > 0 && geom.find("lod") != geom.end() && geom["lod"] != lod_filter)
+    {
+      stream << "Skipping LoD " << geom["lod"] << " because of LoD" << lod_filter << " filter!" << endl;
+      return result;
+    }
+
     if (geom["type"] == "Solid")
     {
       stream << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
@@ -409,9 +416,14 @@ public:
     return object_limit;
   }
 
-  void setFilter(string filter)
+  void setIdFilter(string filter)
   {
     id_filter = filter;
+  }
+
+  void setLodFilter(int lod)
+  {
+    lod_filter = lod;
   }
 
   string getLog()
