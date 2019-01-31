@@ -24,11 +24,6 @@ private:
   unordered_map<string, Dart_handle> index_2_cell;
 
 public:
-  Point tvec_to_point(TVec3d v)
-  {
-    return Point(v.x, v.y, v.z);
-  }
-
   Point json_to_point(nlohmann::json p)
   {
     if (cityModel.find("transform") != cityModel.end())
@@ -59,11 +54,6 @@ public:
     //st << round_by(p.x(), precision) << "-" << round_by(p.y(), precision) << "-" << round_by(p.z(), precision);
 
     return st.str();
-  }
-
-  string get_point_name(TVec3d v)
-  {
-    return get_point_name(tvec_to_point(v));
   }
 
   string index_to_string(unordered_map<string, Dart_handle>::iterator it)

@@ -11,7 +11,6 @@
 
 #include "typedefs.h"
 
-#include "citygml_reader.h"
 #include "cityjson_reader.h"
 
 using namespace std;
@@ -127,7 +126,6 @@ int main(int argc, char *argv[])
 	}
 
 	// Load the CityJSON model
-	citygml::ParserParams params;
 	const char *filename = argv[1];
 	const char *out_filename = "";
 	const char *off_filename = "";

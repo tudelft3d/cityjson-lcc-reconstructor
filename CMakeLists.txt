@@ -35,20 +35,15 @@ if ( NOT Boost_FOUND )
 
 endif()
 
-# Include libcitygml
-INCLUDE_DIRECTORIES( /usr/local/include/citygml )
-
 # Creating entries for all C++ files with "main" routine
 # ##########################################################
 include( CGAL_CreateSingleSourceCGALProgram )
 
 add_executable(citygml2lcc
-  main.cpp citygml_reader.h cityjson_reader.h
+  main.cpp cityjson_reader.h
   typedefs.h)
 
 add_to_cached_list(CGAL_EXECUTABLE_TARGETS citygml2lcc)
 
 target_link_libraries(citygml2lcc ${CGAL_LIBRARIES}
                                                  ${CGAL_3RD_PARTY_LIBRARIES})
-
-target_link_libraries( citygml2lcc citygml ${XERCESC_LIBRARY} ${OPENGL_LIBRARIES} )
