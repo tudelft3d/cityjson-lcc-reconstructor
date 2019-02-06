@@ -18,6 +18,26 @@
 #define LCC_DEMO_VISIBLE 1 // if not visible => hidden
 #define LCC_DEMO_FILLED  2 // if not filled, wireframe
 
+class Vertex_info
+{
+public:
+  Vertex_info() : m_vertex(0)
+  {}
+
+  const unsigned long vertex() const
+  {
+    return m_vertex;
+  }
+
+  void set_vertex(unsigned long i)
+  {
+    m_vertex = i;
+  }
+
+private:
+  unsigned long m_vertex = 0;
+};
+
 class Volume_info
 {
   friend void CGAL::read_cmap_attribute_node<Volume_info>
@@ -167,7 +187,7 @@ public:
   template < class Refs >
   struct Dart_wrapper
   {
-    typedef CGAL::Cell_attribute_with_point< Refs > Vertex_attrib;
+    typedef CGAL::Cell_attribute_with_point< Refs, Vertex_info > Vertex_attrib;
     typedef CGAL::Cell_attribute< Refs, Volume_info> Volume_attrib;
 
     typedef CGAL::cpp11::tuple<Vertex_attrib,void,void,

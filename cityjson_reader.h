@@ -194,19 +194,24 @@ public:
     // TODO: Add support for holes
     const vector<Point> verts = parse_vertices(poly[0]);
 
+    auto id = poly[0].begin();
     if (verts.size() > 2)
     {
-      for(auto it = verts.begin(); (it + 1) != verts.end(); it++)
+      for(auto it = verts.begin(); (it + 1) != verts.end(); it++, id++)
       {
         if (get_point_name(*it) != get_point_name(*(it + 1)))
         {
-          result.push_back(add_edge(*it, *(it + 1)));
+          Dart_handle new_dart = add_edge(*it, *(it + 1));
+          lcc.info<0>(new_dart).set_vertex(*id);
+          result.push_back(new_dart);
         }
       }
 
       if (get_point_name(verts.back()) != get_point_name(*verts.begin()))
       {
-        result.push_back(add_edge(verts.back(), *verts.begin()));
+        Dart_handle new_dart = add_edge(verts.back(), *verts.begin());
+        lcc.info<0>(new_dart).set_vertex(*id);
+        result.push_back(new_dart);
       }
 
       if (result.size() > 2)

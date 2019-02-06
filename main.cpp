@@ -34,7 +34,7 @@ void show_help()
 	cout << "		--show-statistics	Show statistics for the city model and lcc" << endl;
 }
 
-void append_cityjson(nlohmann::json& city, LCC lcc)
+void append_cityjson(nlohmann::json& city, LCC lcc, CityJsonReader& reader)
 {
 	nlohmann::json darts;
 
@@ -65,6 +65,7 @@ void append_cityjson(nlohmann::json& city, LCC lcc)
       }
     }
 
+    darts["vertices"].push_back(lcc.info<0>(it).vertex());
     darts["betas"].push_back(betas);
     darts["parents"].push_back(lcc.info<3>(it).get_guid());
   }
@@ -201,7 +202,7 @@ int main(int argc, char *argv[])
 
 	if (cityjson_filename != nullptr && cityjson_filename[0] != '\0')
 	{
-		append_cityjson(city_model, lcc);
+    append_cityjson(city_model, lcc, reader);
 
 		ofstream output_file(cityjson_filename);
 		output_file << city_model;
