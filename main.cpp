@@ -41,38 +41,33 @@ void append_cityjson(nlohmann::json& city, LCC lcc)
 	std::map<LCC::Dart_const_handle, LCC::size_type> myDarts;
 
 	// First we numbered each dart by using the std::map.
-    LCC::Dart_range::const_iterator it(lcc.darts().begin());
-    for(LCC::size_type num=1; num<=lcc.number_of_darts(); ++num, ++it)
-    {
-      	myDarts[it] = num;
-    }
+  LCC::Dart_range::const_iterator it(lcc.darts().begin());
+  for(LCC::size_type num=1; num<=lcc.number_of_darts(); ++num, ++it)
+  {
+    myDarts[it] = num;
+  }
 
 	// Now we save each dart, and its neighbors.
 	it=lcc.darts().begin();
-    for(LCC::size_type num=0; num<lcc.number_of_darts(); ++num, ++it)
+  for(LCC::size_type num=0; num<lcc.number_of_darts(); ++num, ++it)
+  {
+    nlohmann::json betas;
+    // the beta, only for non free sews
+    for(unsigned int dim=1; dim<=lcc.dimension; dim++)
     {
-		// make a dart
-		nlohmann::json new_dart;
-
-		nlohmann::json betas;
-		// the beta, only for non free sews
-		for(unsigned int dim=1; dim<=lcc.dimension; dim++)
-		{
-			if(!lcc.is_free(it, dim))
-			{
-				betas.push_back(myDarts[lcc.beta(it, dim)]);
-			}
-			else
-			{
-				betas.push_back(-1);
-			}
-		}
-
-		new_dart["betas"] = betas;
-		new_dart["parent"] = lcc.info<3>(it).get_guid();
-
-		darts.push_back(new_dart);
+      if(!lcc.is_free(it, dim))
+      {
+        betas.push_back(myDarts[lcc.beta(it, dim)]);
+      }
+      else
+      {
+        betas.push_back(-1);
+      }
     }
+
+    darts["betas"].push_back(betas);
+    darts["parents"].push_back(lcc.info<3>(it).get_guid());
+  }
 
 	city["darts"] = darts;
 }
