@@ -17,6 +17,8 @@ private:
   string id_filter = "";
   int lod_filter = -1;
   bool index_1_per_object = false;
+  double scale[3] = {1, 1, 1};
+  double translate[3] = {0, 0, 0};
 
   ostringstream log_str;
   unordered_map<string, vector<Dart_handle> > index_0_cell;
@@ -26,16 +28,7 @@ private:
 public:
   Point json_to_point(nlohmann::json p)
   {
-    if (cityModel.find("transform") != cityModel.end())
-    {
-      nlohmann::json scale, translate;
-      scale = cityModel["transform"]["scale"];
-      translate = cityModel["transform"]["translate"];
-
-      return Point((double)p[0] * (double)scale[0] + (double)translate[0], (double)p[1] * (double)scale[1] + (double)translate[1], (double)p[2] * (double)scale[2] + (double)translate[2]);
-    }
-
-    return Point(p[0], p[1], p[2]);
+    return Point((double)p[0] * scale[0] + translate[0], (double)p[1] * scale[1] + translate[1], (double)p[2] * scale[2] + translate[2]);
   }
 
   double round_by(double f, int d)
@@ -336,6 +329,15 @@ public:
   LCC readCityModel(nlohmann::json city)
   {
     cityModel = city;
+
+    if (cityModel.find("transform") != cityModel.end())
+    {
+      for (int d = 0; d < 3; d++)
+      {
+        scale[d] = cityModel["transform"]["scale"][d];
+        translate[d] = cityModel["transform"]["translate"][d];
+      }
+    }
 
     map<string, nlohmann::json> objs = city["CityObjects"];
     int obj_count = objs.size();
