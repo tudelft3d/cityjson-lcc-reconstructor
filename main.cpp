@@ -70,7 +70,7 @@ void append_cityjson(nlohmann::json& city, LCC lcc, CityJsonReader& reader)
     darts["parents"].push_back(lcc.info<2>(it).get_guid());
   }
 
-	city["darts"] = darts;
+  city["+darts"] = darts;
 }
 
 void print_statistics(nlohmann::json& city, LCC lcc)
