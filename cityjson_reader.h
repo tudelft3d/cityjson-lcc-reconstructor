@@ -256,9 +256,9 @@ public:
     if (geom["type"] == "Solid")
     {
       stream << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
-      for (auto& solid : geom["boundaries"])
+      for (auto& shell : geom["boundaries"])
       {
-        for (auto& polygon : solid)
+        for (auto& polygon : shell)
         {
           auto temp_darts = parse_polygon( polygon, stream, level + 1 );
           result.insert(result.end(), temp_darts.begin(), temp_darts.end());
