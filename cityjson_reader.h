@@ -253,6 +253,13 @@ public:
       return result;
     }
 
+    bool has_semantics = geom.find("semantics") != geom.end();
+    nlohmann::json::iterator semantic_values;
+    if (has_semantics)
+    {
+      semantic_values = geom["semantics"]["values"].begin();
+    }
+
     if (geom["type"] == "Solid")
     {
       stream << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
@@ -262,6 +269,16 @@ public:
         {
           auto temp_darts = parse_polygon( polygon, stream, level + 1 );
           result.insert(result.end(), temp_darts.begin(), temp_darts.end());
+
+          for (auto temp_dart: temp_darts)
+          {
+            init_face(temp_dart);
+            if (has_semantics)
+            {
+              lcc.info<2>(temp_dart).set_semantic_surface(*semantic_values);
+            }
+          }
+          semantic_values++;
         }
       }
     }
@@ -272,6 +289,16 @@ public:
       {
         auto temp_darts = parse_polygon( polygon, stream, level + 1 );
         result.insert(result.end(), temp_darts.begin(), temp_darts.end());
+
+        for (auto temp_dart: temp_darts)
+        {
+          init_face(temp_dart);
+          if (has_semantics)
+          {
+            lcc.info<2>(temp_dart).set_semantic_surface(*semantic_values);
+          }
+        }
+        semantic_values++;
       }
     }
 
@@ -296,7 +323,6 @@ public:
 
       for (vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
       {
-        init_face(*it);
         lcc.info<2>(*it).set_guid(obj.first);
 
         init_volume(*it);
