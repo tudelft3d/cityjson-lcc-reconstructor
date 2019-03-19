@@ -296,6 +296,9 @@ public:
 
       for (vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
       {
+        init_face(*it);
+        lcc.info<2>(*it).set_guid(obj.first);
+
         init_volume(*it);
         lcc.info<3>(*it).set_guid(obj.first);
         // TODO: Add attributes assignment
@@ -314,10 +317,26 @@ public:
       init_volume(it);
   }
 
+  void init_all_faces()
+  {
+    for (LCC::One_dart_per_cell_range<2>::iterator
+         it(lcc.one_dart_per_cell<2>().begin());
+         it.cont(); ++it)
+      init_face(it);
+  }
+
   void init_volume(Dart_handle dh)
   {
     if ( lcc.attribute<3>(dh)==LCC::null_handle )
     { lcc.set_attribute<3>(dh, lcc.create_attribute<3>()); }
+  }
+
+  void init_face(Dart_handle dh)
+  {
+    if (lcc.attribute<2>(dh) == LCC::null_handle)
+    {
+      lcc.set_attribute<2>(dh, lcc.create_attribute<2>());
+    }
   }
 
   void set_attributes(Dart_handle dh, nlohmann::json attributes)
@@ -388,6 +407,7 @@ public:
 
     cout << endl;
 
+    init_all_faces();
     init_all_volumes();
 
     return lcc;

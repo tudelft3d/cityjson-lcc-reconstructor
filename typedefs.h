@@ -38,6 +38,43 @@ private:
   unsigned long m_vertex = 0;
 };
 
+class Face_info
+{
+  friend void CGAL::read_cmap_attribute_node<Face_info>
+  (const boost::property_tree::ptree::value_type &v,Face_info &val);
+
+  friend void CGAL::write_cmap_attribute_node<Face_info>(boost::property_tree::ptree & node,
+                                                           const Face_info& arg);
+public:
+  Face_info() : m_guid("nothing"),
+    m_semantic_surface(-1)
+  {}
+
+  void set_guid(std::string guid)
+  {
+    m_guid = guid;
+  }
+
+  std::string get_guid() const
+  {
+    return m_guid;
+  }
+
+  void set_semantic_surface(int semantic_surface)
+  {
+    m_semantic_surface = semantic_surface;
+  }
+
+  int get_semantic_surface() const
+  {
+    return m_semantic_surface;
+  }
+
+private:
+  std::string m_guid;
+  int m_semantic_surface;
+};
+
 class Volume_info
 {
   friend void CGAL::read_cmap_attribute_node<Volume_info>
@@ -121,6 +158,27 @@ namespace CGAL
 {
 
 template<>
+inline void read_cmap_attribute_node<Face_info>
+(const boost::property_tree::ptree::value_type &v,Face_info &val)
+{
+  try
+  {
+    val.m_guid = v.second.get<std::string>("guid");
+  }
+  catch(const std::exception &  )
+  {}
+}
+
+// Definition of function allowing to save custon information.
+template<>
+inline void write_cmap_attribute_node<Face_info>(boost::property_tree::ptree & node,
+                                                   const Face_info& arg)
+{
+  boost::property_tree::ptree & nValue = node.add("v","");
+  nValue.add("guid",arg.m_guid);
+}
+
+template<>
 inline void read_cmap_attribute_node<Volume_info>
 (const boost::property_tree::ptree::value_type &v,Volume_info &val)
 {
@@ -188,9 +246,10 @@ public:
   struct Dart_wrapper
   {
     typedef CGAL::Cell_attribute_with_point< Refs, Vertex_info > Vertex_attrib;
+    typedef CGAL::Cell_attribute< Refs, Face_info> Face_attrib;
     typedef CGAL::Cell_attribute< Refs, Volume_info> Volume_attrib;
 
-    typedef CGAL::cpp11::tuple<Vertex_attrib,void,void,
+    typedef CGAL::cpp11::tuple<Vertex_attrib,void,Face_attrib,
                                Volume_attrib> Attributes;
   };
 };

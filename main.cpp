@@ -67,7 +67,7 @@ void append_cityjson(nlohmann::json& city, LCC lcc, CityJsonReader& reader)
 
     darts["vertices"].push_back(lcc.info<0>(it).vertex());
     darts["betas"].push_back(betas);
-    darts["parents"].push_back(lcc.info<3>(it).get_guid());
+    darts["parents"].push_back(lcc.info<2>(it).get_guid());
   }
 
 	city["darts"] = darts;
