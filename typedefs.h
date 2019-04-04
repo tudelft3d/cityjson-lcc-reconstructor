@@ -47,6 +47,8 @@ class Face_info
                                                            const Face_info& arg);
 public:
   Face_info() : m_guid("nothing"),
+    m_geometry_id(0),
+    m_solid_id(0),
     m_semantic_surface(-1)
   {}
 
@@ -60,19 +62,39 @@ public:
     return m_guid;
   }
 
-  void set_semantic_surface(int semantic_surface)
+  void set_geometry_id(int geometry_id)
   {
-    m_semantic_surface = semantic_surface;
+    m_geometry_id = geometry_id;
   }
 
-  int get_semantic_surface() const
+  int get_geometry_id() const
+  {
+    return m_geometry_id;
+  }
+
+  void set_solid_id(int solid_id)
+  {
+    m_solid_id = solid_id;
+  }
+
+  int get_solid_id() const
+  {
+    return m_solid_id;
+  }
+
+  void set_semantic_surface_id(int semantic_surface_id)
+  {
+    m_semantic_surface = semantic_surface_id;
+  }
+
+  int get_semantic_surface_id() const
   {
     return m_semantic_surface;
   }
 
 private:
   std::string m_guid;
-  int m_semantic_surface;
+  int m_geometry_id, m_solid_id, m_semantic_surface;
 };
 
 class Volume_info

@@ -254,10 +254,10 @@ public:
     }
 
     bool has_semantics = geom.find("semantics") != geom.end();
-    nlohmann::json::iterator semantic_values;
+    nlohmann::json::iterator semantic_id;
     if (has_semantics)
     {
-      semantic_values = geom["semantics"]["values"].begin();
+      semantic_id = geom["semantics"]["values"].begin();
     }
 
     if (geom["type"] == "Solid")
@@ -275,10 +275,10 @@ public:
             init_face(temp_dart);
             if (has_semantics)
             {
-              lcc.info<2>(temp_dart).set_semantic_surface(*semantic_values);
+              lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
             }
           }
-          semantic_values++;
+          semantic_id++;
         }
       }
     }
@@ -295,10 +295,10 @@ public:
           init_face(temp_dart);
           if (has_semantics)
           {
-            lcc.info<2>(temp_dart).set_semantic_surface(*semantic_values);
+            lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
           }
         }
-        semantic_values++;
+        semantic_id++;
       }
     }
 
