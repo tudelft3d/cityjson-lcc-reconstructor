@@ -178,11 +178,11 @@ public:
     return verts;
   }
 
-  vector<Dart_handle> parse_polygon(nlohmann::json poly, ostringstream &stream, int level = 1)
+  vector<Dart_handle> parse_polygon(nlohmann::json poly, int level = 1)
   {
     vector<Dart_handle> result;
 
-    stream << "+" << string(level * 2 - 2, '-') << " Polygon" << endl;
+    log_str << "+" << string(level * 2 - 2, '-') << " Polygon" << endl;
 
     // TODO: Add support for holes
     const vector<Point> verts = parse_vertices(poly[0]);
@@ -241,15 +241,38 @@ public:
     return result;
   }
 
-  vector<Dart_handle> parse_geometry(nlohmann::json geom, ostringstream &stream, int level = 1)
+  vector<Dart_handle> parse_shell(nlohmann::json solid, bool has_semantics, nlohmann::json::iterator semantic_id, int level)
   {
     vector<Dart_handle> result;
 
-    stream << string(level * 2 - 1, '-') << " Geometry (" << geom["type"] << ")" << endl;
+    for (auto& polygon : solid)
+    {
+      auto temp_darts = parse_polygon( polygon, level + 1 );
+      result.insert(result.end(), temp_darts.begin(), temp_darts.end());
+
+      for (auto temp_dart: temp_darts)
+      {
+        init_face(temp_dart);
+        if (has_semantics)
+        {
+          lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
+        }
+      }
+      semantic_id++;
+    }
+
+    return result;
+  }
+
+  vector<Dart_handle> parse_geometry(nlohmann::json geom, int level = 1)
+  {
+    vector<Dart_handle> result;
+
+    log_str << string(level * 2 - 1, '-') << " Geometry (" << geom["type"] << ")" << endl;
 
     if (lod_filter > 0 && geom.find("lod") != geom.end() && geom["lod"] != lod_filter)
     {
-      stream << "Skipping LoD " << geom["lod"] << " because of LoD" << lod_filter << " filter!" << endl;
+      log_str << "Skipping LoD " << geom["lod"] << " because of LoD" << lod_filter << " filter!" << endl;
       return result;
     }
 
@@ -262,64 +285,36 @@ public:
 
     if (geom["type"] == "Solid")
     {
-      stream << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
+      log_str << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
       for (auto& shell : geom["boundaries"])
       {
-        for (auto& polygon : shell)
-        {
-          auto temp_darts = parse_polygon( polygon, stream, level + 1 );
-          result.insert(result.end(), temp_darts.begin(), temp_darts.end());
-
-          for (auto temp_dart: temp_darts)
-          {
-            init_face(temp_dart);
-            if (has_semantics)
-            {
-              lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
-            }
-          }
-          semantic_id++;
-        }
+        auto temp_darts = parse_shell(shell, has_semantics, (*semantic_id).begin(), level);
+        result.insert(result.end(), temp_darts.begin(), temp_darts.end());
       }
     }
     else if (geom["type"] == "MultiSurface")
     {
-      stream << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geom["boundaries"].size() << endl;
-      for (auto& polygon : geom["boundaries"])
-      {
-        auto temp_darts = parse_polygon( polygon, stream, level + 1 );
-        result.insert(result.end(), temp_darts.begin(), temp_darts.end());
-
-        for (auto temp_dart: temp_darts)
-        {
-          init_face(temp_dart);
-          if (has_semantics)
-          {
-            lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
-          }
-        }
-        semantic_id++;
-      }
+      log_str << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geom["boundaries"].size() << endl;
+      auto temp_darts = parse_shell(geom["boundaries"], has_semantics, semantic_id, level);
+      result.insert(result.end(), temp_darts.begin(), temp_darts.end());
     }
 
     return result;
   }
 
-  string parse_object(pair<const string, nlohmann::json> &obj)
+  void parse_object(pair<const string, nlohmann::json> &obj)
   {
-    ostringstream string_stream;
-
-    string_stream << "Object " << obj.first << endl;
-    string_stream << "---------------------" << endl;
+    log_str << "Object " << obj.first << endl;
+    log_str << "---------------------" << endl;
 
     auto obj_content = obj.second;
 
-    string_stream << "Type: " << obj_content["type"] << endl;
-    string_stream << "Geometry count: " << obj_content["geometry"].size() << endl;
+    log_str << "Type: " << obj_content["type"] << endl;
+    log_str << "Geometry count: " << obj_content["geometry"].size() << endl;
 
     for (auto& geom : obj_content["geometry"])
     {
-      vector<Dart_handle> darts = parse_geometry( geom, string_stream );
+      vector<Dart_handle> darts = parse_geometry( geom );
 
       for (vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
       {
@@ -327,12 +322,8 @@ public:
 
         init_volume(*it);
         lcc.info<3>(*it).set_guid(obj.first);
-        // TODO: Add attributes assignment
-        // set_attributes(*it, obj_content["attributes"]);
       }
     }
-
-    return string_stream.str();
   }
 
   void init_all_volumes()
@@ -363,12 +354,6 @@ public:
     {
       lcc.set_attribute<2>(dh, lcc.create_attribute<2>());
     }
-  }
-
-  void set_attributes(Dart_handle dh, nlohmann::json attributes)
-  {
-    // TODO: Make this more flexible
-    // lcc.info<3>(dh).set_attributes(attributes);
   }
 
   LCC readCityModel(nlohmann::json city)
@@ -409,7 +394,7 @@ public:
         }
       }
 
-      log_str << parse_object(obj);
+      parse_object(obj);
 
       log_str << i << ") ";
 #ifdef DEBUG
