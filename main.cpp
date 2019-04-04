@@ -68,7 +68,6 @@ void append_cityjson(nlohmann::json& city, LCC lcc, CityJsonReader& reader)
     // Prepare the array with ids for semantics
     nlohmann::json semanticSurface;
     semanticSurface.push_back(lcc.info<2>(it).get_geometry_id());
-    semanticSurface.push_back(lcc.info<2>(it).get_solid_id());
     semanticSurface.push_back(lcc.info<2>(it).get_semantic_surface_id());
 
     darts["count"] = lcc.number_of_darts();
