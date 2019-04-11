@@ -312,6 +312,7 @@ public:
     log_str << "Type: " << obj_content["type"] << endl;
     log_str << "Geometry count: " << obj_content["geometry"].size() << endl;
 
+    int g_id = 0;
     for (auto& geom : obj_content["geometry"])
     {
       vector<Dart_handle> darts = parse_geometry( geom );
@@ -319,10 +320,12 @@ public:
       for (vector<Dart_handle>::iterator it = darts.begin(); it != darts.end(); ++it)
       {
         lcc.info<2>(*it).set_guid(obj.first);
+        lcc.info<2>(*it).set_geometry_id(g_id);
 
         init_volume(*it);
         lcc.info<3>(*it).set_guid(obj.first);
       }
+      g_id++;
     }
   }
 
