@@ -1,7 +1,7 @@
 # Created by the script cgal_create_CMakeLists
 # This is the CMake script for compiling a set of CGAL applications.
 
-project( citygml2lcc )
+project( cityjson2lcc )
 
 cmake_minimum_required(VERSION 2.8.11)
 
@@ -39,11 +39,11 @@ endif()
 # ##########################################################
 include( CGAL_CreateSingleSourceCGALProgram )
 
-add_executable(citygml2lcc
+add_executable(cityjson2lcc
   main.cpp cityjson_reader.h
   typedefs.h)
 
-add_to_cached_list(CGAL_EXECUTABLE_TARGETS citygml2lcc)
+add_to_cached_list(CGAL_EXECUTABLE_TARGETS cityjson2lcc)
 
-target_link_libraries(citygml2lcc ${CGAL_LIBRARIES}
+target_link_libraries(cityjson2lcc ${CGAL_LIBRARIES}
                                                  ${CGAL_3RD_PARTY_LIBRARIES})
