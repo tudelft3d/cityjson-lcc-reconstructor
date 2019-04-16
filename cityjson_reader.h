@@ -258,7 +258,10 @@ public:
           lcc.info<2>(temp_dart).set_semantic_surface_id(*semantic_id);
         }
       }
-      semantic_id++;
+      if (has_semantics)
+      {
+        semantic_id++;
+      }
     }
 
     return result;
