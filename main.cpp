@@ -188,11 +188,11 @@ int main(int argc, char *argv[])
 		{
 			show_statistics = true;
 		}
-        else if (string(argv[i]) == "--only-old")
-        {
-            reader.setLodFilter(atoi(argv[++i]));
-            cout << " - Will only parse LoD " << argv[i] << endl;
-        }
+    else if (string(argv[i]) == "--only-lod")
+    {
+        reader.setLodFilter(atoi(argv[++i]));
+        cout << " - Will only parse LoD " << argv[i] << endl;
+    }
 	}
 
 	LCC lcc = reader.readCityModel(city_model);
