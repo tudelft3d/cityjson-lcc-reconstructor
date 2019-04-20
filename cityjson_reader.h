@@ -291,7 +291,12 @@ public:
       log_str << "|" << string(level * 2 - 1, '-') << " Solid count: " << geom["boundaries"].size() << endl;
       for (auto& shell : geom["boundaries"])
       {
-        auto temp_darts = parse_shell(shell, has_semantics, (*semantic_id).begin(), level);
+        nlohmann::json::iterator semantic_list;
+        if (has_semantics)
+        {
+          semantic_list = (*semantic_id).begin();
+        }
+        auto temp_darts = parse_shell(shell, has_semantics, semantic_list, level);
         result.insert(result.end(), temp_darts.begin(), temp_darts.end());
       }
     }
