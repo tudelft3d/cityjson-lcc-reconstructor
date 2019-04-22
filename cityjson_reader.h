@@ -300,7 +300,7 @@ public:
         result.insert(result.end(), temp_darts.begin(), temp_darts.end());
       }
     }
-    else if (geom["type"] == "MultiSurface")
+    else if (geom["type"] == "MultiSurface" || geom["type"] == "CompositeSurface")
     {
       log_str << "|" << string(level * 2 - 1, '-') << " Polygon count: " << geom["boundaries"].size() << endl;
       auto temp_darts = parse_shell(geom["boundaries"], has_semantics, semantic_id, level);
